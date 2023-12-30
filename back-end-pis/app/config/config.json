@@ -1,0 +1,24 @@
+{
+    "development": {
+        "username": "admin_clima",
+        "password": "admin_clima",
+        "database": "db_clima",
+        "dialect": "mysql",
+        "host": "127.0.0.1",
+        "operatorAliases": false
+    },
+    "staging": {
+        "username": "admin_clima",
+        "password": "admin_clima",
+        "database": "db_clima",
+        "dialect":"mysql",
+        "operatorAliases":false
+    },
+    "production": {
+        "username": "admin_clima",
+        "password": "admin_clima",
+        "database": "db_clima",
+        "dialect":"mysql",
+        "operatorAliases":false
+    }
+}
