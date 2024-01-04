@@ -14,7 +14,8 @@ router.get('/', function (req, res, next) {
 
 //HISTORIAL 
 router.get("/admin/historial", historialControl.listar);
-router.post("/admin/historial/save", historialControl.guardar);
+router.post("/admin/historial/guardar", historialControl.guardar_historial);
+router.post("/admin/historial/reporte/generar", historialControl.generar_reporte);
 
 
 //api sensores
