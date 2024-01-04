@@ -4,7 +4,7 @@ var models = require("../models");
 var historial = models.historial_climatico;
 var sensor = models.sensor;
 
-class HistorialControl {
+class HistorialClimaticoControl {
   async listar(req, res) {
     var lista = await historial.findAll({
       include: [
@@ -14,9 +14,11 @@ class HistorialControl {
           attribute: ["external_id", "alias", "ip", "tipo_medicion"],
         },
       ],
-      attributes: ["fecha", ["external_id", "id"], "hora", "valor_medio"],
+      attributes: ["fecha", "external_id", "hora", "valor_medio"],
     });
     res.status(200);
     res.json({ msg: "OK", code: 200, datos: lista });
   }
 }
+
+module.exports = HistorialClimaticoControl;
