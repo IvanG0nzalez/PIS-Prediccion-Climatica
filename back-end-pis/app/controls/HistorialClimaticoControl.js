@@ -2,6 +2,7 @@
 
 var models = require("../models");
 var historial = models.historial_climatico;
+
 var prediccion = models.prediccion_climatica;
 var sensor = models.sensor;
 
