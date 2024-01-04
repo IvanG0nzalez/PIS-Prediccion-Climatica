@@ -3,7 +3,7 @@ var router = express.Router();
 const sensorC = require('../app/controls/SensorControl');
 let sensorControl = new sensorC();
 
-const historialC = require("../app/controls/historial_climatico_control");
+const historialC = require("../app/controls/HistorialClimaticoControl");
 let historialControl = new historialC();
 
 /* GET users listing. */
