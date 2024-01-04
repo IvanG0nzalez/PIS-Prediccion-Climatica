@@ -2,7 +2,6 @@
 var models = require('../models');
 var sensor = models.sensor;
 var historial = models.historial_climatico;
-var prediccion = models.prediccion_climatica;
 
 class SensorControl {
 
@@ -47,31 +46,6 @@ class SensorControl {
             if(lista == undefined || lista == null){
                 res.status(200);
                 res.json({ msg: "Este sensor no tiene historiales registrados", code: 200, datos: {} });
-            }else{
-                res.status(200);
-                res.json({ msg: "OK", code: 200, datos: lista });
-            }
-        }
-        
-    }
-
-    async obtener_prediccion_climatica(req, res){
-        const external = req.params.external;
-        var sensors = await sensor.findOne({
-            where: { external_id: external },
-            attributes: ['id']
-        });
-        if (sensors == undefined || sensors == null) {
-            res.status(200);
-            res.json({ msg: "No existe ese sensor", code: 200, datos: {} });
-        }else{
-            var lista = prediccion.findAll({
-                where: { id_sensor: sensors.id },
-                attributes:['fecha','hora','valor_calculado','external_id']
-            })
-            if(lista == undefined || lista == null){
-                res.status(200);
-                res.json({ msg: "Este sensor no tiene predicciones registrados", code: 200, datos: {} });
             }else{
                 res.status(200);
                 res.json({ msg: "OK", code: 200, datos: lista });
