@@ -8,6 +8,7 @@ const MetodoPredictivo = require('../Metodo_Predictivo');
 let metodo_predic = new MetodoPredictivo();
 
 class PrediccionClimaticaControl {
+
   async listar(req, res) {
     var lista = await prediccion.findAll({
       include: [
@@ -17,7 +18,9 @@ class PrediccionClimaticaControl {
           attribute: ["external_id", "alias", "ip", "tipo_medicion"],
         },
       ],
+
       attributes: ["fecha", "external_id", "hora", "valor_calculado"],
+
     });
     res.status(200);
     res.json({ msg: "OK", code: 200, datos: lista });
@@ -31,3 +34,5 @@ class PrediccionClimaticaControl {
 }
 
 module.exports = PrediccionClimaticaControl;
+
+

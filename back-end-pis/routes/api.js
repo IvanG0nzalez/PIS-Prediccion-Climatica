@@ -6,10 +6,21 @@ let sensorControl = new sensorC();
 const prediccionC = require('../app/controls/PrediccionClimaticaControl');
 let prediccionControl = new prediccionC();
 
+const historialC = require("../app/controls/HistorialClimaticoControl");
+let historialControl = new historialC();
+
+
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
+
+
+//HISTORIAL 
+router.get("/admin/historial", historialControl.listar);
+router.post("/admin/historial/guardar", historialControl.guardar_historial);
+router.post("/admin/historial/reporte/generar", historialControl.generar_reporte);
+
 
 //api sensores
 router.get('/admin/sensores', sensorControl.listar);
