@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
     }, { timestamps: false, freezeTableName: true });
     historial_climatico.associate = function (models) {
         historial_climatico.belongsTo(models.sensor, { foreignKey: 'id_sensor' });
+        historial_climatico.belongsToMany(models.prediccion_climatica, {
+            through: 'historial_prediccion',
+            foreignKey: 'id_historial_climatico',
+            otherKey: 'id_prediccion_climatica',
+            as: 'predicciones'
+        });
+
     };
     return historial_climatico;
 };
