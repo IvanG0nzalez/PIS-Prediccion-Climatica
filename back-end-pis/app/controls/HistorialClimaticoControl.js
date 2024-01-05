@@ -2,7 +2,6 @@
 
 var models = require("../models");
 var historial = models.historial_climatico;
-
 var prediccion = models.prediccion_climatica;
 var sensor = models.sensor;
 
@@ -22,6 +21,47 @@ class HistorialControl {
         });
         res.status(200);
         res.json({ msg: "OK", code: 200, datos: lista });
+    }
+
+    async obtener_por_fecha(req, res) {
+        const fecha = req.params.fecha;
+        var lista = await historial.findAll({
+            where: { fecha: fecha },
+            include: [
+                { model: models.sensor, as: "sensor", attributes: ['alias', 'tipo_medicion', 'external_id'] },
+            ],
+            attributes: ['fecha', 'hora', 'valor_medido', 'external_id']
+        });
+        if (lista === undefined || lista === null) {
+            res.status(404);
+            res.json({ msg: "Error", tag: "Lecturas no encontradas", code: 404 });
+        } else {
+            res.status(200);
+            res.json({ msg: "OK", code: 200, datos: lista });
+        }
+    }
+
+    async obtener_historiales_actual(req, res) {
+
+        var sensores_historial = await sensor.findAll({
+            attributes: ['alias', 'ip', 'tipo_medicion', 'external_id'],
+            include: [
+                { model: models.historial_climatico, 
+                    as: "historial_climatico", 
+                    attributes: ['fecha', 'hora', 'valor_medido', 'external_id'], 
+                    limit: 1, 
+                    order: [['fecha', 'DESC'], ['hora', 'DESC']] 
+                },
+            ],
+        });
+
+        if (sensores_historial.length === 0) {
+            res.status(200);
+            res.json({ msg: "No hay sensores registrados", code: 200, datos: {}});
+        } else {
+            res.status(200)
+            res.json({ msg: "OK", code: 200, datos: sensores_historial });
+        }
     }
 
     //GUARDAR HISTORIAL
