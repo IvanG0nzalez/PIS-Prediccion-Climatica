@@ -1,24 +1,35 @@
 {
     "development": {
-        "username": "admin_clima",
-        "password": "admin_clima",
-        "database": "db_clima",
+        "username": "avnadmin",
+        "password": "AVNS_NkOFBJLJAtHuSqc-dFz",
+        "database": "defaultdb",
         "dialect": "mysql",
-        "host": "127.0.0.1",
+        "host": "db-clima-prediccion-climatica.a.aivencloud.com",
+        "port": 24363,
+        "ssl": true,
+        "sslMode": "REQUIRED",
         "operatorAliases": false
     },
     "staging": {
-        "username": "admin_clima",
-        "password": "admin_clima",
-        "database": "db_clima",
-        "dialect":"mysql",
-        "operatorAliases":false
+        "username": "avnadmin",
+        "password": "AVNS_NkOFBJLJAtHuSqc-dFz",
+        "database": "defaultdb",
+        "dialect": "mysql",
+        "host": "db-clima-prediccion-climatica.a.aivencloud.com",
+        "port": 24363,
+        "ssl": true,
+        "sslMode": "REQUIRED",
+        "operatorAliases": false
     },
     "production": {
-        "username": "admin_clima",
-        "password": "admin_clima",
-        "database": "db_clima",
-        "dialect":"mysql",
-        "operatorAliases":false
+        "username": "avnadmin",
+        "password": "AVNS_NkOFBJLJAtHuSqc-dFz",
+        "database": "defaultdb",
+        "dialect": "mysql",
+        "host": "db-clima-prediccion-climatica.a.aivencloud.com",
+        "port": 24363,
+        "ssl": true,
+        "sslMode": "REQUIRED",
+        "operatorAliases": false
     }
 }
