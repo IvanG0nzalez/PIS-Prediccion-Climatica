@@ -16,11 +16,12 @@ router.get('/', function (req, res, next) {
 });
 
 
-//HISTORIAL 
-router.get("/admin/historial", historialControl.listar);
-router.post("/admin/historial/guardar", historialControl.guardar);
-router.post("/admin/historial/reporte/generar", historialControl.generar_reporte);
-
+//api historial climatico 
+router.get("/admin/historiales", historialControl.listar);
+router.post("/admin/historiales/guardar", historialControl.guardar);
+router.post("/admin/historiales/reporte/generar", historialControl.generar_reporte);
+router.get('/admin/historiales/obtener/:fecha', historialControl.obtener_por_fecha);
+router.get('/admin/historiales/obtener_actuales', historialControl.obtener_historiales_actual);
 
 //api sensores
 router.get('/admin/sensores', sensorControl.listar);
@@ -28,6 +29,7 @@ router.post('/admin/sensores/guardar', sensorControl.guardar);
 router.get('/admin/sensores/obtener/:external', sensorControl.obtener_sensor);
 router.patch('/admin/sensores/modificar/:external', sensorControl.modificar);
 router.get('/admin/sensores/obtener/historial_climatico/:external', sensorControl.obtener_historial_climatico);
+
 
 
 //api prediccion climatica

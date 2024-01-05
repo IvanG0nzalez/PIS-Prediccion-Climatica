@@ -36,10 +36,10 @@ class SensorControl {
             attributes: ['id']
         });
         if (sensors == undefined || sensors == null) {
-            res.status(200);
-            res.json({ msg: "No existe ese sensor", code: 200, datos: {} });
+            res.status(404);
+            res.json({ msg: "No existe ese sensor", code: 404});
         }else{
-            var lista = historial.findAll({
+            var lista = await historial.findAll({
                 where: { id_sensor: sensors.id },
                 attributes:['fecha','hora','valor_medido','external_id']
             })
@@ -50,8 +50,7 @@ class SensorControl {
                 res.status(200);
                 res.json({ msg: "OK", code: 200, datos: lista });
             }
-        }
-        
+        } 
     }
     
     async guardar(req, res) {
