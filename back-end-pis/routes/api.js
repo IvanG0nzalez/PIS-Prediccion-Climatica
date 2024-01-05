@@ -44,6 +44,7 @@ router.get('/admin/sensores/obtener/historial_climatico/:external', sensorContro
 
 //api prediccion climatica
 router.post('/predicciones/guardar', prediccionControl.guardar);
+router.get('/predicciones', prediccionControl.obtener_proximas_4);
 
 
 //ROL
