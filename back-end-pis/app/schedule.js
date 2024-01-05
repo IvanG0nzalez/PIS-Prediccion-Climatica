@@ -1,12 +1,12 @@
 const schedule = require('node-schedule');
 const models = require('./models');
 
-const MetodoPredictivo = require('./Metodo_Predictivo');
-let metodo_predic = new MetodoPredictivo();
+const prediccionC = require('./controls/PrediccionClimaticaControl');
+let prediccionControl = new prediccionC();
 
-const tarea = schedule.scheduleJob('0 0 * * *', async () => {
+const tarea = schedule.scheduleJob('*/30 * * * *', async () => {
     try {
-        await metodo_predic.calcularNuevaPrediccion("Automatica");
+        await prediccionControl.calcularNuevaPrediccion("Automatica");
 
         console.log('Tarea de cálculo de predicciones ejecutada.');
     } catch (error) {
