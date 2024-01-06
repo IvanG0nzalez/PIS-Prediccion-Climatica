@@ -4,17 +4,12 @@ const bcrypt = require("bcrypt");
 var models = require("../models");
 var usuario = models.usuario;
 var rol = models.rol;
+var cuenta = models.cuenta;
 
 class UsuarioControl {
   async listar(req, res) {
     var lista = await usuario.findAll({
-      attributes: [
-        "nombres",
-        "apellidos",
-        "cedula",
-        "external_id",
-        "id_rol",
-      ],
+      attributes: ["nombres", "apellidos", "cedula", "external_id", "id_rol"],
     });
     res.status(200);
     res.json({
@@ -63,7 +58,7 @@ class UsuarioControl {
       try {
         if (rolId !== undefined && rolId !== null) {
           console.log(rolId.external_id);
-          const claveCifrada= await bcrypt.hash(req.body.clave,10)
+          const claveCifrada = await bcrypt.hash(req.body.clave, 10);
           var result = await usuario.create(
             {
               nombres: req.body.nombres,
@@ -125,37 +120,44 @@ class UsuarioControl {
     }
   }
 
-  async update(req, res) {
+  async modificar(req, res) {
     const external = req.params.external;
-    var rolId = await rol.findOne({
-      where: { id: req.body.id_rol },
-    });
+    const claveCifrada = await bcrypt.hash(req.body.clave, 10);
+
     var lista = await usuario.findOne({
       where: { external_id: external },
-      /* attributes: [
-        "nombres",
-        "apellidos",
-        "cedula",
-//        "id_rol",
-        ],
-      */
     });
+    if (lista === null) {
+      var cuentaAux = await cuenta.findOne({
+        where: { id_usuario: lista.id },
+      });
+      if (cuentaAux === null) {
+        lista.nombres = req.body.nombres;
+        lista.apellidos = req.body.apellidos;
+        lista.cedula = req.body.direccion;
+        cuentaAux.clave = claveCifrada;
+        await lista.save();
+        await cuentaAux.save();
 
-    lista.nombres = req.body.nombres;
-    lista.apellidos = req.body.apellidos;
-    lista.cedula = req.body.direccion;
-    lista.id_rol = rolId.id;
-
-    await lista.save();
-    rolId.external_id = UUID.v4();
-    await rolId.save();
-
-    res.status(200);
-    res.json({
-      msg: "OK",
-      code: 200,
-      data: lista,
-    });
+        res.status(200);
+        res.json({
+          msg: "OK",
+          tag: "La información se actualizo",
+          code: 200,
+          data: lista,
+        });
+      } else {
+      }
+    } else {
+      res.status(203);
+      res.json({
+        msg: "ERROR",
+        tag: "NO se encuentra el Usuario",
+        code: 401,
+        error_msg: error,
+      });
+    }
   }
 }
+
 module.exports = UsuarioControl;
