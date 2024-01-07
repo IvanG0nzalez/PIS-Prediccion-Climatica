@@ -19,7 +19,7 @@ class UsuarioControl {
     });
   }
 
-  async crear(req, res) {
+  async guardar(req, res) {
     var UUID = require("uuid");
     var rolId = await rol.findOne({
       where: { external_id: req.body.id_rol },

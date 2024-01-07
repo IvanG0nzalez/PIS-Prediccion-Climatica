@@ -26,33 +26,20 @@ class PrediccionClimaticaControl {
   }
 
   async obtener_proximas_4(req, res) {
-    const fecha = req.params.fecha;
     var lista = await prediccion.findAll({
-      where: { fecha: fecha },
-      attributes: ['fecha', 'hora', 'valor_calculado', 'tipo', 'external_id']
+      attributes: ['fecha', 'hora', 'valor_calculado', 'tipo', 'external_id'],
+      limit: 1, 
+      order: [['fecha', 'DESC'], ['hora', 'DESC']],
     });
     if (lista === undefined || lista === null) {
       res.status(404);
-      res.json({ msg: "Error", tag: "Lecturas no encontradas", code: 404 });
+      res.json({ msg: "Error", tag: "Lectura no encontrada", code: 404 });
     } else {
       res.status(200);
       res.json({ msg: "OK", code: 200, datos: lista });
     }
   }
-
-  async guardar(req, res) {
-    const tipo = req.params.tipo;
-
-    if (tipo == "Manual") {
-      await calcularNuevaPrediccion("Manual");
-      res.status(200);
-      res.json({ msg: "OK", code: 200 });
-    } else {
-      res.status(404);
-      res.json({ msg: "Error", tag: "Ese tipo no existe", code: 404 });
-    }
-
-  }
+  
 
   async calcularNuevaPrediccion(tipo) {
     try {
@@ -75,10 +62,14 @@ class PrediccionClimaticaControl {
       const resultadoCalculo = await this.metodo_numerico(valoresMedidos);
       console.log("resultadoCalculo", resultadoCalculo);
 
+      //Aqui poner el valor real de la prediccion
+      
+
       const nuevaPrediccion = await models.prediccion_climatica.create({
         fecha: new Date(),
         hora: new Date(),
         valor_calculado: resultadoCalculo,
+        //valor_real: ,
         tipo: tipo,
         external_id: uuid.v4()
       });
