@@ -180,10 +180,9 @@ router.post("/admin/inicio_sesion", cuentaControl.inicio_sesion);
 router.get("/admin/cuentas", cuentaControl.listar);
 router.patch("/admin/cuentas/estado/:external", cuentaControl.actualizar_estado)
 
-router.patch("/admin/cuenta/estado/:external", cuentaControl.actualizar_estado);
-
 //REPORTEEE
-router.get("/admin/reporte", historialControl.reporte);
+router.get("/admin/reporte", prediccionControl.reporte);
+router.get("/admin/clima", prediccionControl.weather);
 
 
 
