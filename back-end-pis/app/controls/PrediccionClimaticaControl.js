@@ -131,6 +131,18 @@ class PrediccionClimaticaControl {
   }
 
 
+  async reporte(req, res) {
+    var lista = await prediccion.findAll({
+      attributes: ["fecha", "hora", "valor_calculado", "valor_real"],
+    });
+    if (lista === undefined || lista === null) {
+      res.status(500);
+      res.json({ msg: "OK", code: 500, datos: {} });
+    } else {
+      res.status(200);
+      res.json({ msg: "OK", code: 200, datos: lista });
+    }
+  }
   //DATA REAL}
 
   

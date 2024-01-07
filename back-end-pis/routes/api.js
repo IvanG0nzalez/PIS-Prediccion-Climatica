@@ -149,7 +149,6 @@ const isAdmin = async (req, res, next) => {
 //api historial climatico 
 router.get("/admin/historiales", historialControl.listar);
 router.post("/admin/historiales/guardar", historialControl.guardarManual);
-router.post("/admin/historiales/reporte/generar", historialControl.generar_reporte);
 router.get('/admin/historiales/obtener/:fecha', historialControl.obtener_por_fecha);
 router.get('/admin/historiales/obtener_actuales', historialControl.obtener_historiales_actual);
 
