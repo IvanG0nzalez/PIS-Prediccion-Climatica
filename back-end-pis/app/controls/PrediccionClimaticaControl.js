@@ -39,6 +39,7 @@ class PrediccionClimaticaControl {
       res.json({ msg: "OK", code: 200, datos: lista });
     }
   }
+  
 
   async guardar(req, res) {
     const tipo = req.params.tipo;
