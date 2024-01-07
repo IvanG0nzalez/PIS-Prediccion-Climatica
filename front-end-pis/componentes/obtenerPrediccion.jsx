@@ -12,7 +12,7 @@ const ObtenerPrediccion = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
-      const response = await obtenerClimatify("/", token);
+      const response = await obtenerClimatify("/predicciones", token);
       setPredicciones(response.datos);
     };
 
@@ -21,8 +21,35 @@ const ObtenerPrediccion = () => {
     }
   }, []);
 
-  if (!predicciones || predicciones === 0) {
-    return <p>No hay historiales disponibles.</p>;
+  if (!predicciones || predicciones.length === 0) {
+    return (
+      <div className="error-screen">
+        <img
+          src="./error.png"
+          alt="Mensaje de error"
+          style={{ height: "150px", width: "auto" }}
+        />
+        <p>No hay predicciones disponibles.</p>
+        <Link href="/">Volver a la página principal</Link>
+
+        <style jsx>{`
+          .error-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+          }
+
+          img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px; /* Ajusta el margen según tus necesidades */
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (

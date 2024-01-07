@@ -21,26 +21,39 @@ const ObtenerHistorial = () => {
     }
   }, []);
 
-  if (!historiales || historiales === 0) {
-    return <p>No hay historiales disponibles.</p>;
+  if (!historiales|| historiales.length === 0) {
+    return (
+      <div className="error-screen">
+        <img
+          src="./error.png"
+          alt="Mensaje de error"
+          style={{ height: "150px", width: "auto" }}
+        />
+        <p>No hay historiales disponibles.</p>
+        <Link href="/">Volver a la página principal</Link>
+
+        <style jsx>{`
+          .error-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+          }
+
+          img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px; /* Ajusta el margen según tus necesidades */
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
     <div>
-      {rol === "gerente" && (
-        <div
-          style={{
-            position: "relative",
-            paddingTop: "10px",
-            paddingBottom: "10px",
-          }}
-        >
-          <Link href={"/historiales/agregarAuto"} className="btn btn-warning">
-            Agregar Auto
-          </Link>
-        </div>
-      )}
-
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <div className="list-group">
@@ -84,15 +97,6 @@ const ObtenerHistorial = () => {
       </div>
 
       <style jsx>{`
-        .custom-carousel {
-          max-height: 200px;
-        }
-
-        .custom-carousel-image {
-          max-height: 200px;
-          object-fit: contain;
-        }
-
         .list-group {
           display: flex;
           flex-wrap: wrap;
