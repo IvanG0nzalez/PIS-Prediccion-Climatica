@@ -6,6 +6,8 @@ var sensor = models.sensor;
 const { SimpleLinearRegression } = require("ml-regression");
 const { exec } = require("child_process");
 const axios = require("axios");
+const Sequelize = require('sequelize');
+
 
 class PrediccionClimaticaControl {
   async listar(req, res) {
@@ -133,7 +135,11 @@ class PrediccionClimaticaControl {
 
   async reporte(req, res) {
     var lista = await prediccion.findAll({
-      attributes: ["fecha", "hora", "valor_calculado", "valor_real"],
+      attributes: ["fecha", "hora", "valor_calculado", "valor_real", [
+        Sequelize.fn('ABS', Sequelize.literal('"prediccion"."valor_calculado" - "prediccion"."valor_real"')),
+        'error'
+      ]],
+     
     });
     if (lista === undefined || lista === null) {
       res.status(500);
