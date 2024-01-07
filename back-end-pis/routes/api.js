@@ -181,7 +181,8 @@ router.post("/admin/inicio_sesion", cuentaControl.inicio_sesion);
 router.get("/admin/cuentas", cuentaControl.listar);
 router.patch("/admin/cuenta/estado/:external", cuentaControl.actualizar_estado);
 
-
+//REPORTEEE
+router.get("/admin/reporte", historialControl.reporte);
 
 
 
