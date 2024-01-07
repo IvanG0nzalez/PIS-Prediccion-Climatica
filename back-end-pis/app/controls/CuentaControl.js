@@ -76,9 +76,10 @@ class CuentaControl {
             id_usuario: usuarioAux.id
         }
     })
+    //console.log(cuentaAux)
     if (req.body.hasOwnProperty("clave")) {
 
-        cuentaAux.estado = req.body.clave;
+        cuentaAux.clave = claveCifrada;
         await cuentaAux.save();
 
 
