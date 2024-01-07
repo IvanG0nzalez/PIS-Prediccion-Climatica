@@ -125,8 +125,9 @@ class HistorialControl {
     }
 
     async guardarAutomaticamente() {
-        recurso = ""; //Aquí poner la dirección del esp32
-        var informacion = this.obtener_datos(recurso);
+        const recurso = "http://192.168.1.113/json"; //Aquí poner la dirección del esp32
+        console.log(recurso);
+        var informacion = await this.obtener_datos(recurso);
         var uuid = require("uuid");
         //console.log("aquí se va a guardar");
 
