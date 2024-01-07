@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { obtenerClimatify } from "@/hooks/Conexion";
 import { getToken, getRol } from "@/hooks/SessionUtil";
 import Link from "next/link";
-import { Carousel } from "react-bootstrap";
 
 const ObtenerHistorial = () => {
   const [historiales, setHistoriales] = useState([]);
@@ -12,7 +11,7 @@ const ObtenerHistorial = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
-      const response = await obtenerClimatify("/admin/historiales", token);
+      const response = await obtenerClimatify("admin/historiales", token);
       setHistoriales(response.datos);
     };
 
@@ -65,24 +64,6 @@ const ObtenerHistorial = () => {
                   </h5>
                   <p> {historial.sensor.alias} </p>
                   <p> {historial.valor_medido} % </p>
-
-                  {rol === "gerente" && (
-                    <div className="button-container">
-                      <Link
-                        href={`historiales/actualizarhistoriales/${historial.id}`}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Modificar
-                      </Link>
-
-                      <Link
-                        href={`historiales/agregarImagen/${historial.id}`}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Agregar Imagen
-                      </Link>
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
