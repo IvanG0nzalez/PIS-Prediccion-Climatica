@@ -1,5 +1,6 @@
 "use strict";
 
+const { Sequelize } = require('sequelize');
 var models = require("../models");
 var historial = models.historial_climatico;
 var prediccion = models.prediccion_climatica;
@@ -44,7 +45,7 @@ class HistorialControl {
     async obtener_historiales_actual(req, res) {
 
         var sensores_historial = await sensor.findAll({
-            attributes: ['alias', 'ip', 'tipo_medicion', 'external_id'],
+            attributes: [['alias', 'nombre_sensor'], 'tipo_medicion', 'external_id'],
             include: [
                 {
                     model: models.historial_climatico,
@@ -60,8 +61,12 @@ class HistorialControl {
             res.status(200);
             res.json({ msg: "No hay sensores registrados", code: 200, datos: {} });
         } else {
+            const resultadoSinId = sensores_historial.map(sensor => {
+                const { id, ...resto } = sensor.get();
+                return resto;
+            });
             res.status(200)
-            res.json({ msg: "OK", code: 200, datos: sensores_historial });
+            res.json({ msg: "OK", code: 200, datos: resultadoSinId });
         }
     }
 
