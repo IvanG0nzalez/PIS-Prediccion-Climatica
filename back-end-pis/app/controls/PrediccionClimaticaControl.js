@@ -39,6 +39,7 @@ class PrediccionClimaticaControl {
       res.json({ msg: "OK", code: 200, datos: lista });
     }
   }
+  
 
   async calcularNuevaPrediccion(tipo) {
     try {
