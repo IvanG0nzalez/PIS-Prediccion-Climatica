@@ -62,12 +62,51 @@ class CuentaControl {
     });
   }
 
+  async cambiar_Clave(req, res) {
+    const external_usuario = req.params.external;
+    const claveCifrada = await bcrypt.hash(req.body.clave, 10);
+
+    var usuarioAux = await usuario.findOne({
+      where: {
+        external_id: external_usuario,
+      }
+    });
+    var cuentaAux=await cuenta.findOne({
+        where: {
+            id_usuario: usuarioAux.id
+        }
+    })
+    if (req.body.hasOwnProperty("clave")) {
+
+        cuentaAux.estado = req.body.clave;
+        await cuentaAux.save();
+
+
+    } else {
+        res.status(200);
+        res.json({
+          msg: "ERROR",
+            tag: "Ingrese la nueva clave",
+          code: 400
+        });    
+    }
+
+    res.status(200);
+    res.json({
+      msg: "OK",
+      code: 200,
+      data: cuentaAux,
+    });
+  }
+
+  
+  
   async inicio_sesion(req, res) {
     if (
       req.body.hasOwnProperty("nombre_usuario") &&
       req.body.hasOwnProperty("clave")
     ) {
-      console.log("entraaaaaaa");
+      //console.log("entraaaaaaa");
       let cuentaA = await cuenta.findOne({
         where: {
           nombre_usuario: req.body.nombre_usuario,
@@ -76,7 +115,7 @@ class CuentaControl {
           {
             model: models.usuario,
             as: "usuario",
-            attributes: ["apellidos", "nombres", "external_id"],
+            attributes: ["apellidos", "nombres", "external_id", "id_rol"],
           },
         ],
       });
@@ -106,6 +145,7 @@ class CuentaControl {
               token: token,
               user: cuentaA.usuario.apellidos + " " + cuentaA.usuario.nombres,
               external_id: cuentaA.usuario.external_id,
+              id_rol: cuentaA.usuario.id_rol,
             };
             res.status(200);
             res.json({
@@ -135,7 +175,7 @@ class CuentaControl {
       res.status(400);
       res.json({
         msg: "ERROR",
-        tag: "falta dara",
+        tag: "Falta Datos",
         code: 400,
       });
     }
