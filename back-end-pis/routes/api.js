@@ -43,22 +43,22 @@ router.get('/admin/sensores/obtener/historial_climatico/:external', sensorContro
 
 
 //api prediccion climatica
-router.post('/predicciones/guardar', prediccionControl.guardar);
 router.get('/predicciones', prediccionControl.obtener_proximas_4);
 
 
 //ROL
 router.get("/admin/roles", rolControl.listar);
-router.post("/admin/rol/guardar", rolControl.guardar);
+router.post("/admin/roles/guardar", rolControl.guardar);
 
 //USUARIO
 router.get("/admin/usuarios", usuarioControl.listar);
-router.post("/admin/usuario/guardar", usuarioControl.crear);
+router.post("/admin/usuarios/guardar", usuarioControl.guardar);
+router.patch('/admin/usuarios/modificar/:external', usuarioControl.modificar);
 
 //CUENTA
 router.post("/admin/inicio_sesion", cuentaControl.inicio_sesion);
 router.get("/admin/cuentas", cuentaControl.listar);
-router.patch("/admin/cuenta/modificar/:external", cuentaControl.update)
+router.patch("/admin/cuentas/modificar/:external", cuentaControl.actualizar_estado)
 
 
 

@@ -6,11 +6,11 @@ let prediccionControl = new prediccionC();
 
 const tarea = schedule.scheduleJob('*/30 * * * *', async () => {
     try {
-        await prediccionControl.calcularNuevaPrediccion("Automatica");
+        //await prediccionControl.calcularNuevaPrediccion("Automatica");
 
-        console.log('Tarea de cálculo de predicciones ejecutada.');
+        console.log('Se ejecutó el schedule de prediccion');
     } catch (error) {
-        console.error('Error en una tarea', error);
+        console.error('Error en schedule', error);
     }
 })
 

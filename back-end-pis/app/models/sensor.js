@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     const sensor = sequelize.define('sensor', {
         alias: { type: DataTypes.STRING(150), defaultValue: "NONE" },
         ip: { type: DataTypes.STRING(50), defaultValue: "NONE" },
-        tipo_medicion: { type: DataTypes.ENUM('Temperatur', 'Humedad', 'Viento') },
+        tipo_medicion: { type: DataTypes.ENUM('Temperatura', 'Humedad', 'Viento') },
         external_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 }
     }, { timestamps: false, freezeTableName: true });
     sensor.associate = function (models) {

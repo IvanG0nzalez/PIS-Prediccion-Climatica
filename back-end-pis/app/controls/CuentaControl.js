@@ -26,7 +26,7 @@ class CuentaControl {
     });
   }
 
-  async update(req, res) {
+  async actualizar_estado(req, res) {
     const external_usuario = req.params.external;
 
     var usuarioAux = await usuario.findOne({
