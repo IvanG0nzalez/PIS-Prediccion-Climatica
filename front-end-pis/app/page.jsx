@@ -1,5 +1,6 @@
 "use client";
 import * as Yup from "yup";
+import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { inicio_sesion } from "@/hooks/Autenticacion";
@@ -21,7 +22,7 @@ export default function Home() {
 
   const sendData = (data) => {
     var data = {
-      usuario: data.usuario,
+      nombre_usuario: data.usuario,
       clave: data.clave,
     };
     inicio_sesion(data).then((info) => {
@@ -34,10 +35,12 @@ export default function Home() {
         );
       } else {
         mensajes("Has ingresado al sistema!", "Bienvenido", "success");
-        router.push("/autos");
+        router.push("/historial");
       }
     });
   };
+
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div
@@ -60,7 +63,7 @@ export default function Home() {
                 style={{
                   border: "1px solid rgba(0, 0, 0, 0.8)",
                   borderRadius: "1rem",
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  backgroundColor: "rgba(250, 250, 250, 0.2)",
                   backdropFilter: "blur(10px)",
                   boxShadow: "0 0 10px rgba(0, 0, 0, 0.8)",
                 }}
@@ -93,26 +96,40 @@ export default function Home() {
 
                       <div className="form-outline form-white mb-4">
                         <label className="form-label">Contraseña</label>
-                        <input
-                          {...register("clave")}
-                          name="clave"
-                          type="password"
-                          id="clave"
-                          className={`form-control ${
-                            errors.clave ? "is-invalid" : ""
-                          }`}
-                        />
+                        <div className="input-group">
+                          <input
+                            {...register("clave")}
+                            name="clave"
+                            type={showPassword ? "text" : "password"}
+                            id="clave"
+                            className={`form-control ${
+                              errors.clave ? "is-invalid" : ""
+                            }`}
+                          />
+                        </div>
+                        <div className="form-check mt-2 d-flex align-items-center">
+                          <input
+                            type="checkbox"
+                            onChange={() => setShowPassword(!showPassword)}
+                            id="mostrarContrasena"
+                            className="form-check-input"
+                            style={{
+                              cursor: "pointer",
+                              marginRight: "6px",
+                              boxShadow: "0 0 10px rgba(0, 0, 0, 0.8)",
+                            }}
+                          />
+                          <label
+                            style={{ fontSize: "12px", color: "gray", marginTop: "5px" }}
+                          >
+                            Mostrar contraseña
+                          </label>
+                        </div>
 
                         <div className="alert alert-danger invalid-feedback">
                           {errors.clave?.message}
                         </div>
                       </div>
-
-                      <p className="small mb-5 pb-lg-2">
-                        <a className="text-grey-50" href="#!">
-                          Olvido su contraseña
-                        </a>
-                      </p>
 
                       <button
                         className="btn btn-outline-dark btn-lg px-5"
