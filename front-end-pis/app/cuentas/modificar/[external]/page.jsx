@@ -10,10 +10,7 @@ import { useEffect, useState } from "react";
 import mensajes from "@/componentes/Mensajes";
 
 export default function ModificarUsuario() {
-  const router = useRouter();
-  const token = getToken();
-  const { external } = useParams();
-  const [cuentaData, setCuentaData] = useState({});
+
 
   useEffect(() => {}, []);
 
@@ -84,46 +81,6 @@ export default function ModificarUsuario() {
                   </div>
                 </div>
 
-                <div className="form-outline form-white mb-4">
-                  <label className="form-label">Contraseña</label>
-                  <div className="input-group">
-                    <input
-                      {...register("clave")}
-                      name="clave"
-                      type={showPassword ? "text" : "password"}
-                      id="clave"
-                      className={`form-control ${
-                        errors.clave ? "is-invalid" : ""
-                      }`}
-                    />
-                  </div>
-                  <div className="form-check mt-2 d-flex align-items-center">
-                    <input
-                      type="checkbox"
-                      onChange={() => setShowPassword(!showPassword)}
-                      id="mostrarContrasena"
-                      className="form-check-input"
-                      style={{
-                        cursor: "pointer",
-                        marginRight: "6px",
-                        boxShadow: "0 0 10px rgba(0, 0, 0, 0.8)",
-                      }}
-                    />
-                    <label
-                      style={{
-                        fontSize: "12px",
-                        color: "gray",
-                        marginTop: "5px",
-                      }}
-                    >
-                      Mostrar contraseña
-                    </label>
-                  </div>
-
-                  <div className="alert alert-danger invalid-feedback">
-                    {errors.clave?.message}
-                  </div>
-                </div>
 
                 <button
                   className="btn btn-outline-dark btn-lg px-5"
