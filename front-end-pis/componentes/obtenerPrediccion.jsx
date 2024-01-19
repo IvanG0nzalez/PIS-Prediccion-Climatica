@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { obtenerClimatify } from "@/hooks/Conexion";
 import { getToken, getRol } from "@/hooks/SessionUtil";
 import Link from "next/link";
-import { Carousel } from "react-bootstrap";
 
 const ObtenerPrediccion = () => {
   const [predicciones, setPredicciones] = useState([]);
@@ -12,7 +11,7 @@ const ObtenerPrediccion = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
-      const response = await obtenerClimatify("/", token);
+      const response = await obtenerClimatify("predicciones", token);
       setPredicciones(response.datos);
     };
 
@@ -21,26 +20,39 @@ const ObtenerPrediccion = () => {
     }
   }, []);
 
-  if (!predicciones || predicciones === 0) {
-    return <p>No hay historiales disponibles.</p>;
+  if (!predicciones || predicciones.length === 0) {
+    return (
+      <div className="error-screen">
+        <img
+          src="./error.png"
+          alt="Mensaje de error"
+          style={{ height: "150px", width: "auto" }}
+        />
+        <p>No hay predicciones disponibles.</p>
+        <Link href="/">Volver a la página principal</Link>
+
+        <style jsx>{`
+          .error-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+          }
+
+          img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px; /* Ajusta el margen según tus necesidades */
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
     <div>
-      {rol === "gerente" && (
-        <div
-          style={{
-            position: "relative",
-            paddingTop: "10px",
-            paddingBottom: "10px",
-          }}
-        >
-          <Link href={"/historiales/agregarAuto"} className="btn btn-warning">
-            Agregar Auto
-          </Link>
-        </div>
-      )}
-
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <div className="list-group">
@@ -52,24 +64,6 @@ const ObtenerPrediccion = () => {
                   </h5>
                   <p> {prediccion.sensor.alias} </p>
                   <p> {prediccion.valor_medido} % </p>
-
-                  {rol === "gerente" && (
-                    <div className="button-container">
-                      <Link
-                        href={`historiales/actualizarhistoriales/${prediccion.id}`}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Modificar
-                      </Link>
-
-                      <Link
-                        href={`historiales/agregarImagen/${prediccion.id}`}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Agregar Imagen
-                      </Link>
-                    </div>
-                  )}
                 </div>
               </div>
             ))}

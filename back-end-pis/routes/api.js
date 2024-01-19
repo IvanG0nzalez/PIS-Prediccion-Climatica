@@ -170,13 +170,13 @@ router.get("/admin/roles",[auth, isSuperAdmin], rolControl.listar);
 router.post("/admin/roles/guardar",[auth, isSuperAdmin], rolControl.guardar);
 
 //USUARIO
-router.get("/admin/usuarios", usuarioControl.listar);
-router.get("/admin/usuarios/obtener/:external", usuarioControl.obtener);
+router.get("/admin/usuarios",[auth, isSuperAdmin], usuarioControl.listar);
+router.get("/admin/usuarios/obtener/:external", [auth, isSuperAdmin], usuarioControl.obtener);
 router.post("/admin/usuarios/guardar", [auth, isSuperAdmin],usuarioControl.guardar);
 router.patch('/admin/usuarios/modificar/:external',[auth, isSuperAdmin], usuarioControl.modificar);
 
 //CUENTA
-router.post("/admin/inicio_sesion",auth, cuentaControl.inicio_sesion);
+router.post("/admin/inicio_sesion", cuentaControl.inicio_sesion);
 router.post("/admin/cuentas/clave/:external",auth, cuentaControl.cambiar_Clave);
 router.get("/admin/cuentas", [auth, isSuperAdmin], cuentaControl.listar);
 router.patch("/admin/cuentas/estado/:external",[auth, isSuperAdmin],  cuentaControl.actualizar_estado)

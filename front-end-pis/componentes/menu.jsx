@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { getRol } from "@/hooks/SessionUtil";
 import "@fortawesome/fontawesome-free/css/all.css";
 
 export default function Menu() {
+  const rol = getRol();
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-dark">
@@ -38,15 +41,17 @@ export default function Menu() {
                 </Link>
               </li>
 
-              <li className="nav-item">
-                <Link
-                  href="/cuentas"
-                  className="nav-link active text-light"
-                  aria-current="page"
-                >
-                  <i className="fas fa-user-tie"></i> Cuentas
-                </Link>
-              </li>
+              {rol !== "1" && (
+                <li className="nav-item">
+                  <Link
+                    href="/cuentas"
+                    className="nav-link active text-light"
+                    aria-current="page"
+                  >
+                    <i className="fas fa-user-tie"></i> Cuentas
+                  </Link>
+                </li>
+              )}
             </ul>
             <div className="navbar-text text-light fs-4">
               <Link
@@ -63,3 +68,4 @@ export default function Menu() {
     </div>
   );
 }
+

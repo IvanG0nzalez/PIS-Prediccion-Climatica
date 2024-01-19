@@ -152,26 +152,26 @@ class PrediccionClimaticaControl {
   //DATA REAL}
 
   
-  async weather(req, res) {
-    const city = "Loja";
-      const apiKey = "a1a6bbf10a0d4b1289a25246240701";
-      const APIUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-      const dataU = await axios.get(APIUrl);
-      const valorReal = dataU.data.current.temp_c
-      console.log(valorReal)
-    let weather=dataU.data;
-    let error = null;
-    try {
-      //console.log(response)
-      //weather = response.data;
-      console.log(weather.current.temp_c)
-      res.status(200).json({ msg: "OK", code: 200, datos: weather });
-    } catch (error) {
-      weather = null;
-      error = "Error al obtener Datos";
-      res.status(500).json({ msg: "500", code: 500, datos: {} });
-    }
-  }
+  // async weather(req, res) {
+  //   const city = "Loja";
+  //     const apiKey = "a1a6bbf10a0d4b1289a25246240701";
+  //     const APIUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
+  //     const dataU = await axios.get(APIUrl);
+  //     const valorReal = dataU.data.current.temp_c
+  //     console.log(valorReal)
+  //   let weather=dataU.data;
+  //   let error = null;
+  //   try {
+  //     //console.log(response)
+  //     //weather = response.data;
+  //     console.log(weather.current.temp_c)
+  //     res.status(200).json({ msg: "OK", code: 200, datos: weather });
+  //   } catch (error) {
+  //     weather = null;
+  //     error = "Error al obtener Datos";
+  //     res.status(500).json({ msg: "500", code: 500, datos: {} });
+  //   }
+  // }
 }
 
 module.exports = PrediccionClimaticaControl;
