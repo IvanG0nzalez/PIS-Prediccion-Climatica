@@ -10,16 +10,84 @@ class UsuarioControl {
   async listar(req, res) {
     var lista = await usuario.findAll({
       attributes: ["nombres", "apellidos", "cedula", "external_id", "id_rol"],
+      include: [
+        {
+          model: rol,
+          as: "rol",
+          attributes: ["external_id", "nombre"],
+        },
+        {
+          model: models.cuenta,
+          as: "cuenta",
+          attributes: ["nombre_usuario", "estado"],
+        },
+      ],
     });
-    res.status(200);
-    res.json({
-      msg: "OK",
-      code: 200,
-      data: lista,
-    });
+
+    if (lista === undefined || lista === null) {
+      res.status(200);
+      res.json({
+        msg: "No hay usuarios registrados",
+        code: 200,
+        data: {},
+      });
+    } else {
+      res.status(200);
+      res.json({
+        msg: "OK",
+        code: 200,
+        data: lista,
+      });
+    }
   }
 
-  async crear(req, res) {
+  async obtener(req, res) {
+    const external = req.params.external;
+    if (external) {
+      var lista = await usuario.findOne({
+        where: { external_id: external },
+        attributes: ["nombres", "apellidos", "cedula", "external_id", "id_rol"],
+        include: [
+          {
+            model: rol,
+            as: "rol",
+            attributes: ["external_id", "nombre"],
+          },
+          {
+            model: models.cuenta,
+            as: "cuenta",
+            attributes: ["nombre_usuario", "estado"],
+          },
+        ],
+      });
+      if (lista === undefined || lista === null) {
+        res.status(400);
+        res.json({
+          msg: "Error",
+          tag: "No se encontro el usuario",
+          code: 400,
+          data: [],
+        });
+      } else {
+        res.status(200);
+        res.json({
+          msg: "OK",
+          code: 200,
+          data: lista,
+        });
+      }
+    } else {
+      res.status(400);
+      res.json({
+        msg: "Error",
+        tag: "External Invalido",
+        code: 400,
+        data: [],
+      });
+    }
+  }
+
+  async guardar(req, res) {
     var UUID = require("uuid");
     var rolId = await rol.findOne({
       where: { external_id: req.body.id_rol },
@@ -135,6 +203,7 @@ class UsuarioControl {
         lista.nombres = req.body.nombres;
         lista.apellidos = req.body.apellidos;
         lista.cedula = req.body.direccion;
+        cuentaAux.estado = req.body.estado;
         cuentaAux.clave = claveCifrada;
         await lista.save();
         await cuentaAux.save();

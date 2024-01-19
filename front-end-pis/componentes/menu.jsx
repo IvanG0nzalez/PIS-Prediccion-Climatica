@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { getRol } from "@/hooks/SessionUtil";
 import "@fortawesome/fontawesome-free/css/all.css";
 
 export default function Menu() {
+  const rol = getRol();
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-dark">
         <div className="container-fluid">
           <button
-            className="navbar-toggler"
+            className="navbar-toggler navbar-light"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarSupportedContent"
@@ -21,36 +24,43 @@ export default function Menu() {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
                 <Link
-                  href="/autos"
+                  href="/historial"
                   className="nav-link active text-light"
                   aria-current="page"
                 >
-                  <i className="fas fa-car"></i> Autos
+                  <i className="fas fa-cloud"></i> Historial
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  href="/ventas"
+                  href="/prediccion"
                   className="nav-link active text-light"
                   aria-current="page"
                 >
-                  <i className="fas fa-cash-register"></i> Ventas
+                  <i className="fas fa-clock-rotate-left"></i> Predicciones
                 </Link>
               </li>
 
-              <li className="nav-item">
-                <Link
-                  href="/compradors"
-                  className="nav-link active text-light"
-                  aria-current="page"
-                >
-                  <i className="fas fa-user-tie"></i> Compradores
-                </Link>
-              </li>
+              {rol !== "1" && (
+                <li className="nav-item">
+                  <Link
+                    href="/cuentas"
+                    className="nav-link active text-light"
+                    aria-current="page"
+                  >
+                    <i className="fas fa-user-tie"></i> Cuentas
+                  </Link>
+                </li>
+              )}
             </ul>
-            {/* Nuevo elemento en el lado derecho con un icono de auto */}
             <div className="navbar-text text-light fs-4">
-              <i className="fas fa-car"></i> Climatifi
+              <Link
+                href="/clima"
+                className="nav-link active text-light"
+                aria-current="page"
+              >
+                <i className="fas fa-cloud-sun-rain"></i> Climatify
+              </Link>
             </div>
           </div>
         </div>
@@ -58,3 +68,4 @@ export default function Menu() {
     </div>
   );
 }
+

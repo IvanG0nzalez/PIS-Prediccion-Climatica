@@ -149,7 +149,6 @@ const isAdmin = async (req, res, next) => {
 //api historial climatico 
 router.get("/admin/historiales", historialControl.listar);
 router.post("/admin/historiales/guardar", historialControl.guardarManual);
-router.post("/admin/historiales/reporte/generar", historialControl.generar_reporte);
 router.get('/admin/historiales/obtener/:fecha', historialControl.obtener_por_fecha);
 router.get('/admin/historiales/obtener_actuales', historialControl.obtener_historiales_actual);
 
@@ -163,25 +162,28 @@ router.get('/admin/sensores/obtener/historial_climatico/:external', sensorContro
 
 
 //api prediccion climatica
-router.post('/predicciones/guardar', prediccionControl.guardar);
 router.get('/predicciones', prediccionControl.obtener_proximas_4);
 
 
 //ROL
 router.get("/admin/roles",[auth, isSuperAdmin], rolControl.listar);
-router.post("/admin/rol/guardar", rolControl.guardar);
+router.post("/admin/roles/guardar",[auth, isSuperAdmin], rolControl.guardar);
 
 //USUARIO
-router.get("/admin/usuarios", usuarioControl.listar);
-router.post("/admin/usuario/guardar", usuarioControl.crear);
-router.patch("/admin/usuario/modificar/:external", usuarioControl.modificar);
+router.get("/admin/usuarios",[auth, isSuperAdmin], usuarioControl.listar);
+router.get("/admin/usuarios/obtener/:external", [auth, isSuperAdmin], usuarioControl.obtener);
+router.post("/admin/usuarios/guardar", [auth, isSuperAdmin],usuarioControl.guardar);
+router.patch('/admin/usuarios/modificar/:external',[auth, isSuperAdmin], usuarioControl.modificar);
 
 //CUENTA
 router.post("/admin/inicio_sesion", cuentaControl.inicio_sesion);
-router.get("/admin/cuentas", cuentaControl.listar);
-router.patch("/admin/cuenta/estado/:external", cuentaControl.actualizar_estado);
+router.post("/admin/cuentas/clave/:external",auth, cuentaControl.cambiar_Clave);
+router.get("/admin/cuentas", [auth, isSuperAdmin], cuentaControl.listar);
+router.patch("/admin/cuentas/estado/:external",[auth, isSuperAdmin],  cuentaControl.actualizar_estado)
 
-
+//REPORTEEE
+router.get("/admin/reporte", prediccionControl.reporte);
+//router.get("/admin/clima", prediccionControl.weather);
 
 
 
