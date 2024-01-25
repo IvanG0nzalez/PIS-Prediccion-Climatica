@@ -15,7 +15,7 @@ const tarea = schedule.scheduleJob('*/30 * * * *', async () => {
     }
 })
 
-const obtenerDatos = schedule.scheduleJob('*/30 * * * *', async () => {
+const obtenerDatos = schedule.scheduleJob('*/10 * * * * *', async () => {
     try {
         await historialControl.guardarAutomaticamente();
     } catch (error) {
