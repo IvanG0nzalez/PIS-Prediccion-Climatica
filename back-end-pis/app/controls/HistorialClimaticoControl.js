@@ -125,102 +125,79 @@ class HistorialControl {
     }
 
     async guardarAutomaticamente() {
-        const recurso = "http://192.168.1.113/json"; //Aquí poner la dirección del esp32
-        console.log(recurso);
+        var recurso = "http://192.168.1.13/"; //Aquí poner la dirección del esp32
         var informacion = await this.obtener_datos(recurso);
-        var uuid = require("uuid");
-        //console.log("aquí se va a guardar");
+        if (informacion && informacion.Temperatura !== undefined &&
+            informacion.Humedad !== undefined &&
+            informacion.Presion !== undefined) {
+            console.log(informacion);
+            var uuid = require("uuid");
+            //console.log("aquí se va a guardar");
 
-        var sensorTemp = await sensor.findOne({
-            where: { alias: "Temperatura" },
-        });
-        var sensorHume = await sensor.findOne({
-            where: { alias: "Humedad" },
-        });
-        /*
-        var sensorAtmo = await sensor.findOne({
-            where: { alias: "Atmosferica" },
-        });*/
-        var fechaHoraActual = new Date();
-        var fechaActual = fechaHoraActual.toISOString().slice(0, 10);
-        var horaActual =
-            fechaHoraActual.getHours() +
-            ":" +
-            fechaHoraActual.getMinutes() +
-            ":" +
-            fechaHoraActual.getSeconds();
+            var sensorTemp = await sensor.findOne({
+                where: { alias: "Temperatura" },
+            });
+            var sensorHume = await sensor.findOne({
+                where: { alias: "Humedad" },
+            });
 
-        var dataTemperatura = {
-            fecha: fechaActual,
-            external_id: uuid.v4(),
-            hora: horaActual,
-            valor_medido: informacion.Temperatura,
-            id_sensor: sensorTemp.id,
-        };
+            var sensorAtmo = await sensor.findOne({
+                where: { alias: "Atmosferica" },
+            });
+            var fechaHoraActual = new Date();
+            var fechaActual = fechaHoraActual.toISOString().slice(0, 10);
+            var horaActual =
+                fechaHoraActual.getHours() +
+                ":" +
+                fechaHoraActual.getMinutes() +
+                ":" +
+                fechaHoraActual.getSeconds();
 
-        var dataHumedad = {
-            fecha: fechaActual,
-            external_id: uuid.v4(),
-            hora: horaActual,
-            valor_medido: informacion.Humedad,
-            id_sensor: sensorHume.id,
-        };
-        console.log(dataTemperatura);
-        console.log(dataHumedad);
-        /*
-                if (sensorTemp == undefined || sensorTemp == null) {
-                    res.status(401);
-                    res.json({
-                        msg: "ERROR",
-                        tag: "El sensor a buscar no existe",
-                        code: 401,
-                    });
-                } else {
-                    // Obtener la fecha y hora actuales
-                    var fechaHoraActual = new Date();
-                    var fechaActual = fechaHoraActual.toISOString().slice(0, 10);
-                    var horaActual =
-                        fechaHoraActual.getHours() +
-                        ":" +
-                        fechaHoraActual.getMinutes() +
-                        ":" +
-                        fechaHoraActual.getSeconds();
-        
-                    var dataTemperatura = {
-                        fecha: fechaActual,
-                        external_id: uuid.v4(),
-                        hora: horaActual,
-                        valor_medido: informacion.Temperatura,
-                        id_sensor: sensorTemp.id,
-                    };
-        
-                    var dataHumedad = {
-                        fecha: fechaActual,
-                        external_id: uuid.v4(),
-                        hora: horaActual,
-                        valor_medido: informacion.Humedad,
-                        id_sensor: sensorHume.id,
-                    };
-                    /*
-                    var dataAtmosferica = {
-                        fecha: fechaActual,
-                        external_id: uuid.v4(),
-                        hora: horaActual,
-                        valor_medido: informacion.Atmosferica,
-                        id_sensor: sensorAtmo.id,
-                    };*/
-        /*
-                    var result = await historial.create(data);
-                    if (result === null) {
-                        res.status(401).json({
-                            msg: "Error",
-                            tag: "No se puede crear",
-                            code: 401,
-                        });
-                    } else {
-                        res.status(200).json({ msg: "OK", code: 200 });
-                    }
-    }*/
+            var dataTemperatura = {
+                fecha: fechaActual,
+                external_id: uuid.v4(),
+                hora: horaActual,
+                valor_medido: informacion.Temperatura,
+                id_sensor: sensorTemp.id,
+            };
+
+            var dataHumedad = {
+                fecha: fechaActual,
+                external_id: uuid.v4(),
+                hora: horaActual,
+                valor_medido: informacion.Humedad,
+                id_sensor: sensorHume.id,
+            };
+
+            var dataAtmosferica = {
+                fecha: fechaActual,
+                external_id: uuid.v4(),
+                hora: horaActual,
+                valor_medido: informacion.Presion,
+                id_sensor: sensorAtmo.id,
+            }
+            console.log(dataTemperatura);
+            console.log(dataHumedad);
+            console.log(dataAtmosferica);
+            /*
+                        var resultTemperatura = await historial.create(dataTemperatura);
+                        var resultHumedad = await historial.create(dataHumedad);
+                        var resultAtmosferica = await historial.create(datdataAtmosfericaa);
+                        if (resultTemperatura === null && resultHumedad === null && resultHumedad === null) {
+                            res.status(401).json({
+                                msg: "Error",
+                                tag: "No se puede crear",
+                                code: 401,
+                            });
+                        } else {
+                            res.status(200).json({ msg: "OK", code: 200 });
+                        }
+        */
+        }else{
+            res.status(500);
+            res.json({ msg: "ERROR", tag: "Error del servidor esp32", code: 500 });
+        }
+
     }
 
     async obtener_datos(recurso) {
@@ -237,7 +214,7 @@ class HistorialControl {
         return responseData;
     }
 
-   
+
 
 }
 
