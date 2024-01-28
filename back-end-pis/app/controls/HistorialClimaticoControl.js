@@ -200,7 +200,7 @@ class HistorialControl {
 
             var resultTemperatura = await historial.create(dataTemperatura);
             var resultHumedad = await historial.create(dataHumedad);
-            var resultAtmosferica = await historial.create(datdataAtmosfericaa);
+            var resultAtmosferica = await historial.create(dataAtmosferica);
             if (resultTemperatura === null && resultHumedad === null && resultAtmosferica === null) {
                 res.status(401).json({
                     msg: "Error",
