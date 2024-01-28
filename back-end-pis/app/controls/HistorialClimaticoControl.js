@@ -1,5 +1,6 @@
 "use strict";
 
+const { check, validationResult } = require("express-validator");
 const { Sequelize } = require('sequelize');
 var models = require("../models");
 var historial = models.historial_climatico;
@@ -68,6 +69,23 @@ class HistorialControl {
             res.status(200)
             res.json({ msg: "OK", code: 200, datos: resultadoSinId });
         }
+    }
+    async validarGuardar(req, res, next){
+        await check("sensor").notEmpty().withMessage("Debe ingresar un sensor").run(req);
+    
+        const errors = validationResult(req).formatWith(({ msg, value }) => ({ msg, value }));
+        //console.log(errors.formatWith(msg, value))
+      
+        if (!errors.isEmpty()) {
+          return res.status(400).json({
+            msg: "ERROR",
+            tag: "Credenciales Invalidas",
+            code: 401,
+            errors: errors.array(),
+          });
+        }
+      
+        next();
     }
 
     //GUARDAR HISTORIAL

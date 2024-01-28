@@ -2,6 +2,7 @@
 
 var models = require("../models");
 const bcrypt = require("bcrypt");
+const { check, validationResult } = require("express-validator");
 
 var rol = models.rol;
 var usuario = models.usuario;
@@ -22,7 +23,7 @@ class CuentaControl {
     res.json({
       msg: "OK",
       code: 200,
-      data: lista,
+      datos: lista,
     });
   }
 
@@ -46,7 +47,7 @@ class CuentaControl {
 
 
     } else {
-        res.status(200);
+        res.status(400);
         res.json({
           msg: "ERROR",
             tag: "Ingrese el estado de la cuenta",
@@ -58,7 +59,7 @@ class CuentaControl {
     res.json({
       msg: "OK",
       code: 200,
-      data: cuentaAux,
+      datos: cuentaAux,
     });
   }
 
@@ -96,11 +97,28 @@ class CuentaControl {
     res.json({
       msg: "OK",
       code: 200,
-      data: cuentaAux,
+      datos: cuentaAux,
     });
   }
 
+  async validarInicio_Sesion(req, res, next){
+    await check("nombre_usuario").notEmpty().withMessage("El usuario no debe estar vacio").run(req);
+    await check("clave").notEmpty().withMessage("La clave no puede estar vacio").run(req);
+
+    const errors = validationResult(req).formatWith(({ msg, value }) => ({ msg, value }));
+    //console.log(errors.formatWith(msg, value))
   
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        msg: "ERROR",
+        tag: "Credenciales Invalidas",
+        code: 401,
+        errors: errors.array(),
+      });
+    }
+  
+    next();
+  }
   
   async inicio_sesion(req, res) {
     if (
@@ -146,14 +164,14 @@ class CuentaControl {
               token: token,
               user: cuentaA.usuario.apellidos + " " + cuentaA.usuario.nombres,
               external_id: cuentaA.usuario.external_id,
-              id_rol: cuentaA.usuario.id_rol,
+              //id_rol: cuentaA.usuario.id_rol,
             };
             res.status(200);
             res.json({
               msg: "OK",
-              tag: "Listi",
+              tag: "Listo",
               code: 200,
-              info: info,
+              datos: info,
             });
           } else {
             res.status(400);
