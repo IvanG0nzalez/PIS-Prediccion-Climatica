@@ -125,7 +125,7 @@ class HistorialControl {
     }
 
     async guardarAutomaticamente() {
-        var recurso = "http://192.168.1.13/"; //Aquí poner la dirección del esp32
+        var recurso = "http://192.168.1.113/"; //Aquí poner la dirección del esp32
         var informacion = await this.obtener_datos(recurso);
         if (informacion && informacion.Temperatura !== undefined &&
             informacion.Humedad !== undefined &&
@@ -179,21 +179,21 @@ class HistorialControl {
             console.log(dataTemperatura);
             console.log(dataHumedad);
             console.log(dataAtmosferica);
-            /*
-                        var resultTemperatura = await historial.create(dataTemperatura);
-                        var resultHumedad = await historial.create(dataHumedad);
-                        var resultAtmosferica = await historial.create(datdataAtmosfericaa);
-                        if (resultTemperatura === null && resultHumedad === null && resultHumedad === null) {
-                            res.status(401).json({
-                                msg: "Error",
-                                tag: "No se puede crear",
-                                code: 401,
-                            });
-                        } else {
-                            res.status(200).json({ msg: "OK", code: 200 });
-                        }
-        */
-        }else{
+
+            var resultTemperatura = await historial.create(dataTemperatura);
+            var resultHumedad = await historial.create(dataHumedad);
+            var resultAtmosferica = await historial.create(datdataAtmosfericaa);
+            if (resultTemperatura === null && resultHumedad === null && resultAtmosferica === null) {
+                res.status(401).json({
+                    msg: "Error",
+                    tag: "No se puede crear",
+                    code: 401,
+                });
+            } else {
+                res.status(200).json({ msg: "OK", code: 200 });
+            }
+
+        } else {
             res.status(500);
             res.json({ msg: "ERROR", tag: "Error del servidor esp32", code: 500 });
         }
