@@ -43,7 +43,7 @@ const ObtenerCuenta = () => {
           img {
             max-width: 100%;
             height: auto;
-            margin-bottom: 10px; /* Ajusta el margen según tus necesidades */
+            margin-bottom: 10px;
           }
         `}</style>
       </div>
