@@ -1,6 +1,6 @@
 "use strict";
 const bcrypt = require("bcrypt");
-
+const { check, validationResult } = require("express-validator");
 var models = require("../models");
 var usuario = models.usuario;
 var rol = models.rol;
@@ -25,18 +25,18 @@ class UsuarioControl {
     });
 
     if (lista === undefined || lista === null) {
-      res.status(200);
+      res.status(204);
       res.json({
         msg: "No hay usuarios registrados",
         code: 200,
-        data: {},
+        datos: {},
       });
     } else {
       res.status(200);
       res.json({
         msg: "OK",
         code: 200,
-        data: lista,
+        datos: lista,
       });
     }
   }
@@ -61,19 +61,19 @@ class UsuarioControl {
         ],
       });
       if (lista === undefined || lista === null) {
-        res.status(400);
+        res.status(204);
         res.json({
           msg: "Error",
           tag: "No se encontro el usuario",
           code: 400,
-          data: [],
+          datos: [],
         });
       } else {
         res.status(200);
         res.json({
           msg: "OK",
           code: 200,
-          data: lista,
+          datos: lista,
         });
       }
     } else {
@@ -82,9 +82,31 @@ class UsuarioControl {
         msg: "Error",
         tag: "External Invalido",
         code: 400,
-        data: [],
+        datos: [],
       });
     }
+  }
+
+  async validarUsuario(req, res, next) {
+    await check("nombres").matches(/^[a-zA-Z ]+$/).withMessage("El campo de Nombres es erroneo").run(req);
+    await check("apellidos").matches(/^[a-zA-Z ]+$/).withMessage("El campo de Apellidos es erroneo").run(req);
+    await check("cedula").matches(/^\d{10}$/).withMessage("La cédula debe tener 10 dígitos numéricos").run(req);
+    await check("nombre_usuario").notEmpty().withMessage("El usuario no debe estar vacio").run(req);
+    await check("clave").notEmpty().withMessage("La clave no puede estar vacio").run(req);
+
+    const errors = validationResult(req).formatWith(({ msg, value }) => ({ msg, value }));
+    //console.log(errors.formatWith(msg, value))
+  
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        msg: "ERROR",
+        tag: "Credenciales Invalidas",
+        code: 401,
+        errors: errors.array(),
+      });
+    }
+  
+    next();
   }
 
   async guardar(req, res) {
@@ -155,7 +177,7 @@ class UsuarioControl {
             res.json({
               msg: "ERROR",
               tag: "NO se pudo crear",
-              code: 401,
+              code: 400,
             });
           } else {
             rolId.external_id = UUID.v4();
@@ -164,24 +186,24 @@ class UsuarioControl {
             res.json({
               msg: "OK",
               code: 200,
-              data: result,
+              datos: result,
             });
           }
         } else {
-          res.status(401);
+          res.status(400);
           res.json({
             msg: "ERROR",
             tag: "No se encuentra Rol",
-            code: 401,
+            code: 400,
           });
         }
       } catch (error) {
         if (transaction) await transaction.rollback();
-        res.status(203);
+        res.status(409);
         res.json({
           msg: "ERROR",
-          tag: "la cuenta ya existe",
-          code: 401,
+          tag: "La cuenta ya existe en el sistema",
+          code: 409,
           error_msg: error,
         });
       }
@@ -213,16 +235,16 @@ class UsuarioControl {
           msg: "OK",
           tag: "La información se actualizo",
           code: 200,
-          data: lista,
+          datos: lista,
         });
       } else {
       }
     } else {
-      res.status(203);
+      res.status(404);
       res.json({
         msg: "ERROR",
         tag: "NO se encuentra el Usuario",
-        code: 401,
+        code: 404,
         error_msg: error,
       });
     }
