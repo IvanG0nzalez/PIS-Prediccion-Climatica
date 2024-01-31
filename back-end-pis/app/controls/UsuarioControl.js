@@ -9,7 +9,7 @@ var cuenta = models.cuenta;
 class UsuarioControl {
   async listar(req, res) {
     var lista = await usuario.findAll({
-      attributes: ["nombres", "apellidos", "cedula", "external_id", "id_rol"],
+      attributes: ["nombres", "apellidos", "cedula", "external_id"],
       include: [
         {
           model: rol,
@@ -19,7 +19,7 @@ class UsuarioControl {
         {
           model: models.cuenta,
           as: "cuenta",
-          attributes: ["nombre_usuario", "estado"],
+          attributes: ["nombre_usuario", "estado", "external_id"],
         },
       ],
     });
@@ -46,7 +46,7 @@ class UsuarioControl {
     if (external) {
       var lista = await usuario.findOne({
         where: { external_id: external },
-        attributes: ["nombres", "apellidos", "cedula", "external_id", "id_rol"],
+        attributes: ["nombres", "apellidos", "cedula", "external_id"],
         include: [
           {
             model: rol,
@@ -56,7 +56,7 @@ class UsuarioControl {
           {
             model: models.cuenta,
             as: "cuenta",
-            attributes: ["nombre_usuario", "estado"],
+            attributes: ["nombre_usuario", "estado", "external_id"],
           },
         ],
       });
@@ -82,7 +82,6 @@ class UsuarioControl {
         msg: "Error",
         tag: "External Invalido",
         code: 400,
-        datos: [],
       });
     }
   }
@@ -180,13 +179,10 @@ class UsuarioControl {
               code: 400,
             });
           } else {
-            rolId.external_id = UUID.v4();
-            await rolId.save();
             res.status(200);
             res.json({
               msg: "OK",
               code: 200,
-              datos: result,
             });
           }
         } else {
@@ -212,41 +208,34 @@ class UsuarioControl {
 
   async modificar(req, res) {
     const external = req.params.external;
-    const claveCifrada = await bcrypt.hash(req.body.clave, 10);
+    const {nombres, apellidos, nombre_usuario, clave} = req.body;
 
-    var lista = await usuario.findOne({
+    var usuarioAux = await usuario.findOne({
       where: { external_id: external },
+      include: [
+        {
+          model: models.cuenta,
+          as: "cuenta",
+          attributes: ["nombre_usuario", "estado", "clave"],
+        },
+      ],
     });
-    if (lista === null) {
-      var cuentaAux = await cuenta.findOne({
-        where: { id_usuario: lista.id },
-      });
-      if (cuentaAux === null) {
-        lista.nombres = req.body.nombres;
-        lista.apellidos = req.body.apellidos;
-        lista.cedula = req.body.direccion;
-        cuentaAux.estado = req.body.estado;
-        cuentaAux.clave = claveCifrada;
-        await lista.save();
-        await cuentaAux.save();
 
-        res.status(200);
-        res.json({
-          msg: "OK",
-          tag: "La información se actualizo",
-          code: 200,
-          datos: lista,
-        });
-      } else {
-      }
+    if(usuarioAux === null || usuarioAux === undefined) {
+      return res.status(404).json({ msg: "ERROR", tag: "No se encuentra el Usuario", code: 404 });
     } else {
-      res.status(404);
-      res.json({
-        msg: "ERROR",
-        tag: "NO se encuentra el Usuario",
-        code: 404,
-        error_msg: error,
-      });
+
+      usuarioAux.nombres = nombres || usuarioAux.nombres;
+      usuarioAux.apellidos = apellidos || usuarioAux.apellidos;
+      await usuarioAux.save();
+
+      if(nombre_usuario || clave) {
+        const claveCifrada = await bcrypt.hash(clave, 10);
+        usuarioAux.cuenta.clave = claveCifrada || usuarioAux.cuenta.clave;
+        usuarioAux.cuenta.nombre_usuario = nombre_usuario || usuarioAux.cuenta.nombre_usuario;
+        await usuarioAux.cuenta.save();
+      }
+      return res.status(200).json({ msg:"OK", tag: "Información actualizada correctamente", code: 200 })
     }
   }
 }

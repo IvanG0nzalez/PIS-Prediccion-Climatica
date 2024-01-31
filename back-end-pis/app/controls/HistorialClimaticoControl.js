@@ -143,35 +143,49 @@ class HistorialControl {
     }
 
     async guardarAutomaticamente() {
-        var recurso = "http://192.168.1.113/"; //Aquí poner la dirección del esp32
-        var informacion = await this.obtener_datos(recurso);
-        if (informacion && informacion.Temperatura !== undefined &&
-            informacion.Humedad !== undefined &&
-            informacion.Presion !== undefined) {
-            console.log(informacion);
-            var uuid = require("uuid");
-            //console.log("aquí se va a guardar");
-
-            var sensorTemp = await sensor.findOne({
-                where: { alias: "Temperatura" },
-            });
-            var sensorHume = await sensor.findOne({
-                where: { alias: "Humedad" },
-            });
-
-            var sensorAtmo = await sensor.findOne({
+        try { 
+            const sensorAux = await sensor.findOne({
                 where: { alias: "Atmosferica" },
+                attributes: ['ip'],
             });
-            var fechaHoraActual = new Date();
-            var fechaActual = fechaHoraActual.toISOString().slice(0, 10);
-            var horaActual =
-                fechaHoraActual.getHours() +
-                ":" +
-                fechaHoraActual.getMinutes() +
-                ":" +
-                fechaHoraActual.getSeconds();
 
-            var dataTemperatura = {
+            if (!sensorAux) {
+                throw new Error('No se encontró el sensor de presión atmosférica');
+            }
+
+            const ip = sensorAux.ip;
+            const recurso = `http://${ip}/`; //Aquí poner la dirección del esp32
+            console.log("recurso", recurso);
+            const informacion = await this.obtener_datos(recurso);
+
+            if (!informacion || informacion.Temperatura === undefined || informacion.Humedad === undefined || informacion.Atmosferica === undefined) {
+                throw new Error('Faltan datos de los sensores, no se guardaron los historiales');
+            }
+
+            console.log(informacion);
+
+            const uuid = require("uuid");
+            const transaction = await models.sequelize.transaction();
+
+            const sensorTemp = await sensor.findOne({
+                where: { alias: "Temperatura" },
+                transaction
+            });
+            const sensorHume = await sensor.findOne({
+                where: { alias: "Humedad" },
+                transaction
+            });
+
+            const sensorAtmo = await sensor.findOne({
+                where: { alias: "Atmosferica" },
+                transaction
+            });
+
+            const fechaHoraActual = new Date();
+            const fechaActual = fechaHoraActual.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const horaActual = fechaHoraActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit'});
+
+            const dataTemperatura = {
                 fecha: fechaActual,
                 external_id: uuid.v4(),
                 hora: horaActual,
@@ -179,7 +193,7 @@ class HistorialControl {
                 id_sensor: sensorTemp.id,
             };
 
-            var dataHumedad = {
+            const dataHumedad = {
                 fecha: fechaActual,
                 external_id: uuid.v4(),
                 hora: horaActual,
@@ -187,35 +201,34 @@ class HistorialControl {
                 id_sensor: sensorHume.id,
             };
 
-            var dataAtmosferica = {
+            const dataAtmosferica = {
                 fecha: fechaActual,
                 external_id: uuid.v4(),
                 hora: horaActual,
-                valor_medido: informacion.Presion,
+                valor_medido: informacion.Atmosferica,
                 id_sensor: sensorAtmo.id,
             }
+
             console.log(dataTemperatura);
             console.log(dataHumedad);
             console.log(dataAtmosferica);
 
-            var resultTemperatura = await historial.create(dataTemperatura);
-            var resultHumedad = await historial.create(dataHumedad);
-            var resultAtmosferica = await historial.create(dataAtmosferica);
-            if (resultTemperatura === null && resultHumedad === null && resultAtmosferica === null) {
-                res.status(401).json({
-                    msg: "Error",
-                    tag: "No se puede crear",
-                    code: 401,
-                });
+            const resultTemperatura = await historial.create(dataTemperatura, { transaction });
+            const resultHumedad = await historial.create(dataHumedad, { transaction });
+            const resultAtmosferica = await historial.create(dataAtmosferica, { transaction });
+            
+            await transaction.commit();
+
+            if (!resultTemperatura || !resultHumedad || !resultAtmosferica) {
+                throw new Error('No se guardaron todos los historiales climáticos');
             } else {
-                res.status(200).json({ msg: "OK", code: 200 });
+                console.log("Se guardaron todos los historiales climáticos");
             }
 
-        } else {
-            res.status(500);
-            res.json({ msg: "ERROR", tag: "Error del servidor esp32", code: 500 });
+        } catch (error) {
+            if (transaction) await transaction.rollback();
+            throw new Error('Error guardando los historiales climáticos automáticamente: ' + error.message);
         }
-
     }
 
     async obtener_datos(recurso) {
