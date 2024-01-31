@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-
 let jwt = require("jsonwebtoken");
+const { check, validationResult } = require("express-validator");
 
 
 const sensorC = require('../app/controls/SensorControl');
@@ -32,7 +32,7 @@ router.get('/', function (req, res, next) {
 
 //MIDDLEWARE
 const auth = function middleware(req, res, next) {
-  const token = req.headers["token-key"];
+  const token = req.headers["token"];
 
   console.log(req.headers);
 
@@ -146,47 +146,42 @@ const isAdmin = async (req, res, next) => {
 };
 
 
-//api historial climatico 
-router.get("/admin/historiales", historialControl.listar);
-router.post("/admin/historiales/guardar", historialControl.guardarManual);
-router.get('/admin/historiales/obtener/:fecha', historialControl.obtener_por_fecha);
+//api historiales climaticos 
+router.get("/admin/historiales", [auth], historialControl.listar);
+router.post("/admin/historiales/guardar", [auth], historialControl.guardarManual);
+router.get('/admin/historiales/obtener/:fecha', [auth], historialControl.obtener_por_fecha);
 router.get('/admin/historiales/obtener_actuales', historialControl.obtener_historiales_actual);
 
 //api sensores
-router.get('/admin/sensores', sensorControl.listar);
-router.post('/admin/sensores/guardar', sensorControl.guardar);
-router.get('/admin/sensores/obtener/:external', sensorControl.obtener_sensor);
-router.patch('/admin/sensores/modificar/:external', sensorControl.modificar);
-router.get('/admin/sensores/obtener/historial_climatico/:external', sensorControl.obtener_historial_climatico);
+router.get('/admin/sensores', [auth], sensorControl.listar);
+router.post('/admin/sensores/guardar', [auth], sensorControl.validarSensor, sensorControl.guardar);
+router.get('/admin/sensores/obtener/:external', [auth], sensorControl.obtener_sensor);
+router.patch('/admin/sensores/modificar/:external', [auth], sensorControl.modificar);
+router.get('/admin/sensores/obtener/historial_climatico/:external', [auth], sensorControl.obtener_historial_climatico);
 
 
 
-//api prediccion climatica
+//api predicciones climaticas
 router.get('/predicciones', prediccionControl.obtener_proximas_4);
 
 
-//ROL
+//api roles
 router.get("/admin/roles",[auth, isSuperAdmin], rolControl.listar);
 router.post("/admin/roles/guardar",[auth, isSuperAdmin],rolControl.validarRol, rolControl.guardar);
 
-//USUARIO
+//api usuarios
 router.get("/admin/usuarios",[auth, isSuperAdmin], usuarioControl.listar);
 router.get("/admin/usuarios/obtener/:external", [auth, isSuperAdmin], usuarioControl.obtener);
 router.post("/admin/usuarios/guardar", [auth, isSuperAdmin],usuarioControl.validarUsuario ,usuarioControl.guardar);
-router.patch('/admin/usuarios/modificar/:external',[auth, isSuperAdmin],usuarioControl.validarUsuario, usuarioControl.modificar);
+router.patch("/admin/usuarios/modificar/:external", [auth, isSuperAdmin], usuarioControl.modificar);
 
-//CUENTA
-router.post("/admin/inicio_sesion",cuentaControl.validarInicio_Sesion, cuentaControl.inicio_sesion);
-router.post("/admin/cuentas/clave/:external",auth, cuentaControl.cambiar_Clave);
-router.get("/admin/cuentas", [auth, isSuperAdmin], cuentaControl.listar);
+//api cuentas
+router.post("/inicio_sesion",cuentaControl.validarInicio_Sesion, cuentaControl.inicio_sesion);
+router.post("/admin/cuentas/clave/:external", [auth], cuentaControl.cambiar_clave);
 router.patch("/admin/cuentas/estado/:external",[auth, isSuperAdmin],  cuentaControl.actualizar_estado)
 
-//REPORTEEE
+//api reportes
 router.get("/admin/reporte", prediccionControl.reporte);
 //router.get("/admin/clima", prediccionControl.weather);
-
-
-
-
 
 module.exports = router;
