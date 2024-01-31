@@ -2,6 +2,8 @@
 var models = require('../models');
 var sensor = models.sensor;
 var historial = models.historial_climatico;
+const { check, validationResult } = require('express-validator');
+
 
 class SensorControl {
 
@@ -20,8 +22,8 @@ class SensorControl {
             attributes: ['alias', 'ip', 'tipo_medicion', 'external_id']
         });
         if (lista === undefined || lista == null) {
-            res.status(200);
-            res.json({ msg: "No existe ese sensor", code: 200, datos: {} });
+            res.status(404);
+            res.json({ msg: "No existe ese sensor", code: 404, datos: {} });
         } else {
             res.status(200);
             res.json({ msg: "OK", code: 200, datos: lista });
@@ -52,6 +54,20 @@ class SensorControl {
             }
         } 
     }
+
+    async validarSensor(req, res, next) {
+        await check('alias').notEmpty().withMessage('El alias no puede estar vacío').run(req);
+        await check('ip').isIP().withMessage('La IP no es válida').run(req);
+        await check('tipo_medicion').isIn(['Temperatura', 'Humedad', 'Atmosferica']).withMessage('Tipo de medición inválido').run(req);
+
+        const errors = validationResult(req).formatWith(({ msg, value }) => ({ msg, value }));
+      
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+      
+        next();
+    }
     
     async guardar(req, res) {
         if (req.body.hasOwnProperty('alias') &&
@@ -66,16 +82,13 @@ class SensorControl {
             }
             var result = await sensor.create(data);
             if (result === null) {
-                res.status(401);
-                res.json({ msg: "Error", tag: "No se creó el sensor", code: 401 });
+                return res.status(401).json({ msg: "Error", tag: "No se creó el sensor", code: 401 });
             } else {
-                res.status(200);
-                res.json({ msg: "OK", code: 200 });
+                return res.status(200).json({ msg: "OK", code: 200 });
             }
 
         } else {
-            res.status(400);
-            res.json({ msg: "Error", tag: "Faltan datos", code: 400 });
+            return res.status(400).json({ msg: "Error", tag: "Faltan datos", code: 400 });
         }
     }
     
@@ -88,12 +101,10 @@ class SensorControl {
             res.json({ msg: "No existe ese sensor", code: 200, datos: {} });
         } else {
             try {
-                var uuid = require('uuid');
                 const data = {
                     alias: req.body.alias !== undefined ? req.body.alias : sensors.alias,
                     ip: req.body.ip !== undefined ? req.body.ip : sensors.ip,
                     tipo_medicion: req.body.tipo_medicion !== undefined ? req.body.tipo_medicion : sensors.tipo_medicion,
-                    external_id: uuid.v4()
                 };
                 await sensors.update(data);
                 res.status(200).json({ msg: "Sensor modificado", code: 200 });
