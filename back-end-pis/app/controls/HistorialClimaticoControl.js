@@ -143,7 +143,8 @@ class HistorialControl {
     }
 
     async guardarAutomaticamente() {
-        try { 
+        let transaction;
+        try {
             const sensorAux = await sensor.findOne({
                 where: { alias: "Atmosferica" },
                 attributes: ['ip'],
@@ -157,7 +158,7 @@ class HistorialControl {
             const recurso = `http://${ip}/`; //Aquí poner la dirección del esp32
             console.log("recurso", recurso);
             const informacion = await this.obtener_datos(recurso);
-
+            
             if (!informacion || informacion.Temperatura === undefined || informacion.Humedad === undefined || informacion.Atmosferica === undefined) {
                 throw new Error('Faltan datos de los sensores, no se guardaron los historiales');
             }
@@ -165,7 +166,7 @@ class HistorialControl {
             console.log(informacion);
 
             const uuid = require("uuid");
-            const transaction = await models.sequelize.transaction();
+            transaction = await models.sequelize.transaction();
 
             const sensorTemp = await sensor.findOne({
                 where: { alias: "Temperatura" },
@@ -182,11 +183,12 @@ class HistorialControl {
             });
 
             const fechaHoraActual = new Date();
-            const fechaActual = fechaHoraActual.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const fechaActual = fechaHoraActual.toLocaleDateString('en-GB');
+            const fechaActualFormateada = fechaActual.split('/').reverse().join('-');
             const horaActual = fechaHoraActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit'});
 
             const dataTemperatura = {
-                fecha: fechaActual,
+                fecha: fechaActualFormateada,
                 external_id: uuid.v4(),
                 hora: horaActual,
                 valor_medido: informacion.Temperatura,
@@ -194,7 +196,7 @@ class HistorialControl {
             };
 
             const dataHumedad = {
-                fecha: fechaActual,
+                fecha: fechaActualFormateada,
                 external_id: uuid.v4(),
                 hora: horaActual,
                 valor_medido: informacion.Humedad,
@@ -202,7 +204,7 @@ class HistorialControl {
             };
 
             const dataAtmosferica = {
-                fecha: fechaActual,
+                fecha: fechaActualFormateada,
                 external_id: uuid.v4(),
                 hora: horaActual,
                 valor_medido: informacion.Atmosferica,
@@ -212,7 +214,7 @@ class HistorialControl {
             console.log(dataTemperatura);
             console.log(dataHumedad);
             console.log(dataAtmosferica);
-
+            
             const resultTemperatura = await historial.create(dataTemperatura, { transaction });
             const resultHumedad = await historial.create(dataHumedad, { transaction });
             const resultAtmosferica = await historial.create(dataAtmosferica, { transaction });
@@ -224,7 +226,7 @@ class HistorialControl {
             } else {
                 console.log("Se guardaron todos los historiales climáticos");
             }
-
+            
         } catch (error) {
             if (transaction) await transaction.rollback();
             throw new Error('Error guardando los historiales climáticos automáticamente: ' + error.message);
