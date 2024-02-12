@@ -184,8 +184,4 @@ router.patch("/admin/cuentas/estado/:external",[auth, isSuperAdmin],  cuentaCont
 router.get("/admin/reporte", prediccionControl.reporte);
 //router.get("/admin/clima", prediccionControl.weather);
 
-
-
-
-
 module.exports = router;
