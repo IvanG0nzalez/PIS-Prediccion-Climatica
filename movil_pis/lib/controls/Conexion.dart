@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class Conexion {
-  //final String URL = "http://192.168.1.4:3000/use/";
+  final String URL = "http://192.168.1.4:3000/api";
   //final String URL_MEDIA = "http://192.168.1.4:3000/multimedia/";
-  final String URL = "http://localhost:3000/api";
+  //final String URL = "http://localhost:3000/api";
   //final String URL_MEDIA = "http://localhost:3000/multimedia/";
 
   static bool NO_TOKEN = false;

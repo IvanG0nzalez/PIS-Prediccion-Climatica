@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movil_pis/views/exception/NoData.dart';
 import 'package:movil_pis/views/principalView.dart';
 import 'package:movil_pis/views/exception/Page404.dart';
 
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
       initialRoute: 'home',
       routes: {
         'home': (context) => const PrincipalView(),
+        'exception': (context) => const NoDatos(),
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const Page404());
