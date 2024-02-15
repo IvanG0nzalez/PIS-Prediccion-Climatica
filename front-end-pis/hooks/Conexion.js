@@ -3,32 +3,10 @@ export function url_api() {
   return URL;
 }
 
-export async function obtener(recurso) {
-  const response = await fetch(URL + recurso);
-  return await response.json();
-}
-
-export async function enviar(recurso, data) {
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-
-  const response = await fetch(URL + recurso, {
-    method: "POST",
-    headers: headers,
-    body: JSON.stringify(data),
-  });
-
-  const responseData = await response.json();
-
-  return responseData;
-}
-
-export async function obtenerClimatify(recurso, token) {
+export async function obtener(recurso, token) {
   const headers = {
     "Content-type": "application/json",
-    "token-key": token,
+    token: token,
   };
   const response = await fetch(URL + recurso, {
     cache: "no-store",
@@ -39,7 +17,38 @@ export async function obtenerClimatify(recurso, token) {
   return responseData;
 }
 
+export async function actualizar(recurso, data, token) {
+  const headers = {
+    Accept: "application/json",
+    "Content-type": "application/json",
+    token: token,
+  };
 
+  const response = await fetch(URL + recurso, {
+    cache: "no-store",
+    method: "PATCH",
+    headers: headers,
+    body: JSON.stringify(data),
+  });
 
+  const responseData = await response.json();
+  return responseData;
+}
 
+export async function enviar(recurso, data, token) {
+  const headers = {
+    Accept: "application/json",
+    "Content-type": "application/json",
+    token: token,
+  };
 
+  const response = await fetch(URL + recurso, {
+    cache: "no-store",
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(data),
+  });
+
+  const responseData = await response.json();
+  return responseData;
+}

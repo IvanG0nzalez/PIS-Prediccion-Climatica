@@ -1,10 +1,10 @@
 "use client";
 import Menu from "@/componentes/menu";
-import ObtenerPrediccion from "@/componentes/obtenerPrediccion";
+import ObtenerSensor from "@/componentes/obtenerSensor";
 import { useRouter } from "next/navigation";
 import { estaSesion } from "@/hooks/SessionUtil";
 
-export default function Prediccion() {
+export default function Historial() {
   const router = useRouter();
 
   if (!estaSesion()) {
@@ -16,7 +16,7 @@ export default function Prediccion() {
     <div className="row">
       <Menu></Menu>
       <div className="container-fluid" style={{ margin: "1%" }}>
-        <ObtenerPrediccion></ObtenerPrediccion>
+        <ObtenerSensor></ObtenerSensor>
       </div>
     </div>
   );
