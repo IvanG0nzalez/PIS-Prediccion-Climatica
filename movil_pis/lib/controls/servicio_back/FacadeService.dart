@@ -7,4 +7,8 @@ class FacadeService {
   Future<RespuestaGenerica> informacionActual() async {
     return await c.solicitudGet('/admin/historiales/obtener_actuales', false);
   }
+
+  Future<RespuestaGenerica> historiales() async {
+    return await c.solicitudGet('/admin/historiales', false);
+  }
 }

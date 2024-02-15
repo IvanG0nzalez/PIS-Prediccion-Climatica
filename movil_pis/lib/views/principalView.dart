@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movil_pis/controls/servicio_back/FacadeService.dart';
 import 'package:movil_pis/views/exception/NoData.dart';
+import 'package:movil_pis/views/pronosticoWidget.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -13,6 +14,12 @@ class PrincipalView extends StatefulWidget {
 
 class _PrincipalViewState extends State<PrincipalView> {
   List<dynamic> datos = [];
+  final tuListaDePronosticoPorHoras = [
+    {'hora': '12:00 PM', 'temperatura': 25},
+    {'hora': '1:00 PM', 'temperatura': 26},
+    {'hora': '2:00 PM', 'temperatura': 27},
+    // Agrega más datos según sea necesario
+  ];
 
   @override
   void initState() {
@@ -70,7 +77,32 @@ class _PrincipalViewState extends State<PrincipalView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Climafy'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Climafy',
+              style: TextStyle(color: const Color.fromARGB(255, 90, 90, 90)),
+            ),
+            GestureDetector(
+              onTap: () {
+                // Navegar al historial
+                Navigator.pushNamed(context, 'historial');
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.history, color: Colors.lightBlue[900], size: 24.0),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Historial',
+                    style:
+                        TextStyle(color: Colors.lightBlue[900], fontSize: 18.0),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -119,10 +151,19 @@ class _PrincipalViewState extends State<PrincipalView> {
                   ),
                 ],
               ),
+              SizedBox(height: 16.0),
+              PronosticoPorHorasWidget(
+                pronosticoPorHoras: tuListaDePronosticoPorHoras,
+              ),
             ],
           ),
         ),
       ),
+      //...
+
+// En algún lugar de tu código principal:
+
+// ...
     );
   }
 
