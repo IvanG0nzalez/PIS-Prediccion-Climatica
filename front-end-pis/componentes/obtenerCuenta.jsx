@@ -1,18 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import { obtenerClimatify } from "@/hooks/Conexion";
-import { getToken, getRol } from "@/hooks/SessionUtil";
+import { obtener } from "@/hooks/Conexion";
+import { getToken } from "@/hooks/SessionUtil";
 import Link from "next/link";
+import LoadingScreen from "./loadingScreen";
 
 const ObtenerCuenta = () => {
   const [cuentas, setCuentas] = useState([]);
-  const rol = getRol();
 
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
-      const response = await obtenerClimatify("admin/usuarios", token);
-      setCuentas(response.data);
+      const response = await obtener("admin/usuarios", token);
+
+      setCuentas(response.datos);
     };
 
     if (typeof window !== "undefined") {
@@ -21,71 +22,58 @@ const ObtenerCuenta = () => {
   }, []);
 
   if (!cuentas || cuentas.length === 0) {
-    return (
-      <div className="error-screen">
-        <img
-          src="./error.png"
-          alt="Mensaje de error"
-          style={{ height: "150px", width: "auto" }}
-        />
-        <p>No hay cuentas disponibles.</p>
-
-        <style jsx>{`
-          .error-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-          }
-
-          img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-          }
-        `}</style>
-      </div>
-    );
+    return LoadingScreen();
   }
 
   return (
-    <div className="table-container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Nombres</th>
-            <th>Apellidos</th>
-            <th>Cédula</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cuentas.map((cuenta, i) => (
-            <tr key={i}>
-              <td>{cuenta.nombres}</td>
-              <td>{cuenta.apellidos}</td>
-              <td>{cuenta.cedula}</td>
-              <td>{cuenta.id_rol}</td>
-              <td>
-                <Link href={`/cuentas/modificar/${cuenta.external_id}`}>
-                  <button className="btn btn-primary">Modificar</button>
-                </Link>
-              </td>
+    <div>
+      <div className="table-container">
+        <div className="center-h1">
+          <h1>Listado de Cuentas</h1>
+        </div>
+
+        <Link href={`/cuenta/agregar/`}>
+          <button className="btn btn-primary">Agregar Nueva Cuenta</button>
+        </Link>
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Nombre de Usuario</th>
+              <th>Nombres</th>
+              <th>Apellidos</th>
+              <th>Cédula</th>
+              <th>Rol</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-  
+          </thead>
+          <tbody>
+            {cuentas.map((cuenta, i) => (
+              <tr key={i}>
+                <td>{cuenta.cuenta.nombre_usuario}</td>
+                <td>{cuenta.nombres}</td>
+                <td>{cuenta.apellidos}</td>
+                <td>{cuenta.cedula}</td>
+                <td>{cuenta.rol.nombre}</td>
+                <td>
+                  <Link href={`/cuenta/modificar/${cuenta.external_id}`}>
+                    <button className="btn btn-primary">Modificar</button>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <style jsx>{`
         .table-container {
           overflow-x: auto;
           width: 80%;
-          margin: 0 auto;
+          margin: 20px auto;
+          padding: 20px;
         }
-  
+
         table {
           width: 100%;
           border-collapse: collapse;
@@ -93,8 +81,9 @@ const ObtenerCuenta = () => {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           border-radius: 8px;
           overflow: hidden;
+          background-color: #fff;
         }
-  
+
         th,
         td {
           border: 1px solid #ddd;
@@ -102,27 +91,40 @@ const ObtenerCuenta = () => {
           text-align: center;
           vertical-align: middle;
         }
-  
+
         th {
           background-color: #f2f2f2;
         }
-  
+
+        tr:hover {
+          background-color: #f5f5f5;
+        }
+
         .btn {
           text-decoration: none;
           color: #fff;
-          padding: 10px 16px;
-          background-color: #007bff;
+          padding: 10px 15px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
-
+          margin-bottom: 10px;
         }
-  
-        tr:hover {
-          background-color: #f5f5f5;
+
+        .btn-primary {
+          background-color: #007bff;
+        }
+
+        .btn-secondary {
+          background-color: #6c757d;
+        }
+
+        .center-h1 {
+          text-align: center;
+          margin-bottom: 20px;
         }
       `}</style>
     </div>
   );
 };
+
 export default ObtenerCuenta;
