@@ -1,8 +1,17 @@
+"use client";
 import Menu from "@/componentes/menu";
 import ObtenerHistorial from "@/componentes/obtenerHistorial";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { estaSesion } from "@/hooks/SessionUtil";
 
-export default async function Historial() {
+export default function Historial() {
+  const router = useRouter();
+
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
+
   return (
     <div className="row">
       <Menu></Menu>
