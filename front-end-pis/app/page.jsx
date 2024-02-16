@@ -25,8 +25,8 @@ export default function Home() {
       nombre_usuario: data.usuario,
       clave: data.clave,
     };
-    inicio_sesion(data).then((info) => {
-      console.log(info);
+    inicio_sesion(data).then((datos) => {
+      console.log(datos);
       if (!estaSesion()) {
         mensajes(
           "Error al iniciar sesión",
@@ -107,6 +107,13 @@ export default function Home() {
                             }`}
                           />
                         </div>
+
+                        {errors.clave && (
+                          <div className="alert alert-danger mt-2">
+                            {errors.clave.message}
+                          </div>
+                        )}
+
                         <div className="form-check mt-2 d-flex align-items-center">
                           <input
                             type="checkbox"
@@ -120,14 +127,14 @@ export default function Home() {
                             }}
                           />
                           <label
-                            style={{ fontSize: "12px", color: "gray", marginTop: "5px" }}
+                            style={{
+                              fontSize: "12px",
+                              color: "gray",
+                              marginTop: "5px",
+                            }}
                           >
                             Mostrar contraseña
                           </label>
-                        </div>
-
-                        <div className="alert alert-danger invalid-feedback">
-                          {errors.clave?.message}
                         </div>
                       </div>
 

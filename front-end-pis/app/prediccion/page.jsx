@@ -1,8 +1,17 @@
+"use client";
 import Menu from "@/componentes/menu";
 import ObtenerPrediccion from "@/componentes/obtenerPrediccion";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { estaSesion } from "@/hooks/SessionUtil";
 
-export default async function Prediccion() {
+export default function Prediccion() {
+  const router = useRouter();
+
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
+
   return (
     <div className="row">
       <Menu></Menu>

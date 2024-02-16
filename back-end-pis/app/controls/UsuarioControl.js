@@ -216,7 +216,7 @@ class UsuarioControl {
         {
           model: models.cuenta,
           as: "cuenta",
-          attributes: ["nombre_usuario", "estado", "clave"],
+          attributes: ["id", "nombre_usuario", "estado", "clave"],
         },
       ],
     });
@@ -224,17 +224,22 @@ class UsuarioControl {
     if(usuarioAux === null || usuarioAux === undefined) {
       return res.status(404).json({ msg: "ERROR", tag: "No se encuentra el Usuario", code: 404 });
     } else {
-
+      console.log(usuarioAux.cuenta.nombre_usuario);
+      console.log(usuarioAux.cuenta.clave);
       usuarioAux.nombres = nombres || usuarioAux.nombres;
       usuarioAux.apellidos = apellidos || usuarioAux.apellidos;
       await usuarioAux.save();
 
-      if(nombre_usuario || clave) {
+      if(nombre_usuario) {
+        usuarioAux.cuenta.nombre_usuario = nombre_usuario || usuarioAux.cuenta.nombre_usuario;
+      }
+      if(clave) {
         const claveCifrada = await bcrypt.hash(clave, 10);
         usuarioAux.cuenta.clave = claveCifrada || usuarioAux.cuenta.clave;
-        usuarioAux.cuenta.nombre_usuario = nombre_usuario || usuarioAux.cuenta.nombre_usuario;
-        await usuarioAux.cuenta.save();
       }
+
+      await usuarioAux.cuenta.save();
+
       return res.status(200).json({ msg:"OK", tag: "Información actualizada correctamente", code: 200 })
     }
   }
