@@ -37,7 +37,7 @@ const ObtenerPrediccion = () => {
                   </h5>
                   <p> {reporte.valor_calculado} </p>
                   <p> {reporte.valor_real} </p>
-                  <p> {reporte.error} </p>
+                  {/* <p> {reporte.error} </p> */}
                 </div>
               </div>
             ))}
