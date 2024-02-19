@@ -8,11 +8,16 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import mensajes from "@/componentes/Mensajes";
 import { enviar } from "@/hooks/Conexion";
-import { getToken } from "@/hooks/SessionUtil";
+import { getToken, estaSesion } from "@/hooks/SessionUtil";
 
 export default function AgregarSensor() {
   const router = useRouter();
   const token = getToken();
+
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
 
   // Validaciones
   const validationSchema = Yup.object().shape({
