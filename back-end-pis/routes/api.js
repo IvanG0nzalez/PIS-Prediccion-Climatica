@@ -150,7 +150,9 @@ const isAdmin = async (req, res, next) => {
 router.get("/admin/historiales", [auth], historialControl.listar);
 router.post("/admin/historiales/guardar", [auth], historialControl.guardarManual);
 router.get('/admin/historiales/obtener/:fecha', [auth], historialControl.obtener_por_fecha);
-router.get('/admin/historiales/obtener_actuales', historialControl.obtener_historiales_actual);
+router.get('/historiales/obtener_actuales', historialControl.obtener_historiales_actual);
+router.get("/historiales_hoy", historialControl.listar_hoy);
+
 
 //api sensores
 router.get('/admin/sensores', [auth], sensorControl.listar);
@@ -162,7 +164,7 @@ router.get('/admin/sensores/obtener/historial_climatico/:external', [auth], sens
 
 
 //api predicciones climaticas
-router.get('/predicciones', prediccionControl.obtener_proximas_4);
+router.get('/predicciones', async (req, res) =>{ await prediccionControl.obtener_proximas_4(req, res)});
 
 
 //api roles
@@ -181,7 +183,7 @@ router.post("/admin/cuentas/clave/:external", [auth], cuentaControl.cambiar_clav
 router.patch("/admin/cuentas/estado/:external",[auth, isSuperAdmin],  cuentaControl.actualizar_estado)
 
 //api reportes
-router.get("/admin/reporte", prediccionControl.reporte);
+router.get("/reporte", prediccionControl.reporte);
 //router.get("/admin/clima", prediccionControl.weather);
 
 module.exports = router;
