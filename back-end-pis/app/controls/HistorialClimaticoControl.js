@@ -25,6 +25,29 @@ class HistorialControl {
         res.json({ msg: "OK", code: 200, datos: lista });
     }
 
+    async listar_hoy(req, res) {
+        const fechaActual = new Date().toISOString().slice(0, 10);
+        var lista = await historial.findAll({
+            where: { fecha: fechaActual},
+            include: [
+                {
+                    model: models.sensor,
+                    as: "sensor",
+                    attributes: ["external_id", "alias", "ip", "tipo_medicion"],
+                },
+            ],
+            attributes: ["fecha", "external_id", "hora", "valor_medido"],
+        });
+
+        console.log(lista.length);
+
+        if(lista.length === 0) {
+            res.status(404).json({ msg: "No hay registros para hoy", code: 404 });
+        } else {
+            res.status(200).json({ msg: "OK", code: 200, datos: lista });
+        }
+    }
+
     async obtener_por_fecha(req, res) {
         const fecha = req.params.fecha;
         var lista = await historial.findAll({
