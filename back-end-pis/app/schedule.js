@@ -10,12 +10,17 @@ const schedulePrediccion = process.env.SCHEDULE_PREDICCION === 'true';
 const scheduleHistorial = process.env.SCHEDULE_HISTORIAL === 'true';
 
 if(schedulePrediccion){
-    const prediccion = schedule.scheduleJob('*/30 * * * *', async () => {
+    const prediccion = schedule.scheduleJob('0 * * * *', async () => {
         try {
-            await prediccionControl.calcularNuevaPrediccion("Automatica");
-            console.log('Se ejecutó el schedule de prediccion');
+            await prediccionControl.calcularNuevaPrediccion("Automatica", "Temperatura", "Temperatura", 240);
+            await prediccionControl.calcularNuevaPrediccion("Automatica", "Humedad", "Humedad", 240);
+            await prediccionControl.calcularNuevaPrediccion("Automatica", "Atmosferica", "Atmosferica", 240);
+
+            const horaActual = new Date().toLocaleString();
+            console.log(`[${horaActual}] Se ejecutó el schedule de prediccion`);
         } catch (error) {
-            console.error('Error en schedule prediccion', error);
+            const horaActual = new Date().toLocaleString();
+            console.error(`[${horaActual}] Error en schedule prediccion`, error);
         }
     })
 }
@@ -24,10 +29,12 @@ if(scheduleHistorial){
     const obtenerDatos = schedule.scheduleJob('*/20 * * * *', async () => {
         try {
             await historialControl.guardarAutomaticamente();
-            console.log('Se ejecutó el schedule de historial');
 
+            const horaActual = new Date().toLocaleString();
+            console.log(`[${horaActual}] Se ejecutó el schedule de historial`);
         } catch (error) {
-            console.error('Error en schedule historial', error);
+            const horaActual = new Date().toLocaleString();
+            console.error(`[${horaActual}] Error en schedule historial`, error);
         }
     });
 }
