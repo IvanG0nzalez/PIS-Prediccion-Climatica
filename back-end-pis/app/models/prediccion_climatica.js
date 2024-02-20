@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
         valor_calculado: { type: DataTypes.FLOAT.UNSIGNED, defaultValue: 0 },
         valor_real: { type: DataTypes.FLOAT.UNSIGNED, defaultValue: 0 },
         tipo: { type: DataTypes.ENUM('Automatica', 'Manual') },
+        tipo_medicion: { 
+            type: DataTypes.ENUM('Temperatura', 'Humedad', 'Atmosferica'), 
+            allowNull: false 
+        },
         external_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 }
     }, { timestamps: false, freezeTableName: true });
     prediccion_climatica.associate = function (models) {

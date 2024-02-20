@@ -3,143 +3,116 @@
 var models = require("../models");
 var prediccion = models.prediccion_climatica;
 var sensor = models.sensor;
-const { SimpleLinearRegression } = require("ml-regression");
-const { exec } = require("child_process");
 const axios = require("axios");
 const Sequelize = require('sequelize');
-
+const { spawn } = require('child_process');
 
 class PrediccionClimaticaControl {
-  async listar(req, res) {
-    var lista = await prediccion.findAll({
-      include: [
-        {
-          model: models.sensor,
-          as: "sensor",
-          attribute: ["external_id", "alias", "ip", "tipo_medicion"],
-        },
-      ],
-
-      attributes: ["fecha", "external_id", "hora", "valor_calculado"],
-    });
-    res.status(200);
-    res.json({ msg: "OK", code: 200, datos: lista });
-  }
 
   async obtener_proximas_4(req, res) {
-    var lista = await prediccion.findAll({
-      attributes: ["fecha", "hora", "valor_calculado", "tipo", "external_id"],
-      limit: 1,
+    var prediccionesTemperatura = await this.obtenerPredicciones("Temperatura");
+    var prediccionesHumedad = await this.obtenerPredicciones("Humedad");
+    var prediccionesAtmosferica = await this.obtenerPredicciones("Atmosferica");
+
+    var data = {
+      temperatura: prediccionesTemperatura,
+      humedad: prediccionesHumedad,
+      atmosferica: prediccionesAtmosferica
+    }
+
+    if (!prediccionesTemperatura || !prediccionesHumedad || !prediccionesAtmosferica) {
+      res.status(404);
+      res.json({ msg: "Error", tag: "Lecturas no encontradas", code: 404 });
+    } else {
+      res.status(200);
+      res.json({ msg: "OK", code: 200, datos: data });
+    }
+  }
+
+  async obtenerPredicciones(tipo_medicion) {
+    var predicciones = await prediccion.findAll({
+      where: { tipo_medicion: tipo_medicion },
+      attributes: ["fecha", "hora", "valor_calculado", "valor_real", "tipo_medicion", "external_id"],
+      limit: 4,
       order: [
         ["fecha", "DESC"],
         ["hora", "DESC"],
       ],
     });
-    if (lista === undefined || lista === null) {
-      res.status(404);
-      res.json({ msg: "Error", tag: "Lectura no encontrada", code: 404 });
-    } else {
-      res.status(200);
-      res.json({ msg: "OK", code: 200, datos: lista });
-    }
+
+    return predicciones;
   }
 
-  async calcularNuevaPrediccion(tipo) {
-    try {
+  async calcularNuevaPrediccion(tipo, tipo_medicion, sensorAlias, num_registros) {
+    var uuid = require("uuid");
+    const sensor = await models.sensor.findOne({ where: { alias: sensorAlias } });
+
+    const historiales = await models.historial_climatico.findAll({
+      where: { id_sensor: sensor.id },
+      attributes: ['id', 'valor_medido', 'fecha', 'hora'],
+      order: [['id', 'DESC']],
+      limit: num_registros
+    });
+
+    const valores = historiales.map(historial => historial.valor_medido).reverse();
+    const fechas = historiales.map(historial => `${historial.fecha} ${historial.hora}`).reverse();
+
+    const city = "Loja";
+    const apiKey = "a1a6bbf10a0d4b1289a25246240701";
+    const APIUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
+    const dataU = await axios.get(APIUrl);
+    const valorReal = dataU.data.current.temp_c
+    if (!valorReal) {
+      return res.status(500).json({ msg: "Error interno del servidor", code: 500 });
+    }
+
+    const childPython = spawn('python', ['./app/controls/metodo_predictivo.py', valores, fechas, Math.floor(num_registros / 2)]);
+    let prediccionPy = '';
+
+    childPython.stdout.on('data', (data) => {
+      prediccionPy += data.toString();
+      console.log("prediccion", prediccionPy);
+    });
+
+    childPython.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+
+    childPython.on('close', (code) => {
+      console.log(`Se salió del script de pyhton con código de salida ${code}`);
       
+      const prediccionJson = JSON.parse(prediccionPy);
 
-      var uuid = require("uuid");
+      prediccionJson.forEach(async (element) => {
+        const fechaHora = element[0];
+        const valor = element[1];
 
-      const historialesClimaticos = await models.historial_climatico.findAll({
-        attributes: ["valor_medido", "id"],
-        include: [
-          {
-            model: models.sensor,
-            as: "sensor",
-            attributes: [],
-          },
-        ],
+        const [fecha, hora] = fechaHora.split(' ');
+
+        const nuevaPrediccion = await prediccion.create({
+          fecha: fecha,
+          hora: hora,
+          valor_calculado: valor,
+          valor_real: valorReal,
+          tipo: tipo,
+          tipo_medicion: tipo_medicion,
+          external_id: uuid.v4()
+        });
+
+        for (const historial of historiales) {
+          await historial.addPredicciones(nuevaPrediccion);
+        }
+
       });
-      console.log("historialesClimaticos", historialesClimaticos);
-
-      const valoresMedidos = historialesClimaticos.map(
-        (historial) => historial.valor_medido
-      );
-      const resultadoCalculo = await this.metodo_numerico(valoresMedidos);
-      console.log("resultadoCalculo", resultadoCalculo);
-
-      //Aqui poner el valor real de la prediccion
-      //VALOR REAL
-      const city = "Loja";
-      const apiKey = "a1a6bbf10a0d4b1289a25246240701";
-      const APIUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-      const dataU = await axios.get(APIUrl);
-      const valorReal = dataU.data.current.temp_c
-      if (valorReal === undefined || valorReal ===null) {
-        res.status(500).json({ msg: "500", code: 500, datos: {} });
-      }
-      //
-      const nuevaPrediccion = await models.prediccion_climatica.create({
-        fecha: new Date(),
-        hora: new Date(),
-        valor_calculado: resultadoCalculo,
-        valor_real: valorReal,
-        tipo: tipo,
-        external_id: uuid.v4(),
-      });
-      console.log(nuevaPrediccion);
-
-      for (const historial of historialesClimaticos) {
-        await historial.addPredicciones(nuevaPrediccion);
-      }
-
-      console.log("Predicción climática creada:", nuevaPrediccion);
-    } catch (error) {
-      console.error("Error al calcular la predicción climática:", error);
-    }
+    });
   }
-
-  async metodo_numerico(arrayDeValores) {
-    if (!Array.isArray(arrayDeValores) || arrayDeValores.length === 0) {
-      throw new Error("El array está vacío.");
-    }
-
-    const indices = Array.from({ length: arrayDeValores.length }, (_, i) => i);
-    const valores = arrayDeValores;
-
-    console.log("Indices:", indices);
-    console.log("Valores:", valores);
-
-    try {
-      const regression = new SimpleLinearRegression(indices, valores);
-
-      const predicciones = valores.map((valor) => regression.predict(valor));
-      console.log("predicciones", predicciones);
-
-      const sumaPredicciones = predicciones.reduce(
-        (acumulador, valor) => acumulador + valor,
-        0
-      );
-      const promedioPredicciones = sumaPredicciones / predicciones.length;
-
-      return Math.abs(promedioPredicciones);
-    } catch (error) {
-      console.error("Error en regresión lineal:", error);
-      throw error;
-    }
-
-    //const resultadoSuma = arrayDeValores.reduce((acumulador, valor) => acumulador + valor, 0);
-    //return resultadoSuma;
-  }
-
 
   async reporte(req, res) {
     var lista = await prediccion.findAll({
-      attributes: ["fecha", "hora", "valor_calculado", "valor_real", [
-        Sequelize.fn('ABS', Sequelize.literal('"prediccion"."valor_calculado" - "prediccion"."valor_real"')),
-        'error'
-      ]],
-     
+      attributes: ["tipo_medicion", "fecha", "hora", "valor_calculado", "valor_real",
+        [Sequelize.literal('ABS(`prediccion_climatica`.`valor_calculado` - `prediccion_climatica`.`valor_real`)'), 'error']
+      ],
+      order: [['fecha', 'DESC'], ['hora', 'DESC']],
     });
     if (lista === undefined || lista === null) {
       res.status(500);
@@ -151,7 +124,7 @@ class PrediccionClimaticaControl {
   }
   //DATA REAL}
 
-  
+
   // async weather(req, res) {
   //   const city = "Loja";
   //     const apiKey = "a1a6bbf10a0d4b1289a25246240701";
