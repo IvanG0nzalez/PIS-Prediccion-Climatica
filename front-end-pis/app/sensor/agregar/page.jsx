@@ -26,15 +26,15 @@ export default function AgregarSensor() {
         /^[a-zA-Z0-9\s]+$/,
         "Ingrese solo letras, números y espacios en el campo de alias"
       )
-      .required("Ingrese los alias del sensor"),
+      .required("Ingrese el alias del sensor"),
     ip: Yup.string()
-      .required("Ingrese la ip del sensor")
+      .required("Ingrese la IP del sensor")
       // IP TIPO C (?)
       .matches(
         /^(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/,
         "Ingrese una dirección IP válida de Clase C"
       ),
-    tipo_sensor: Yup.string().required("Seleccione el tipo de sensor"),
+    tipo_sensor: Yup.string().required("Seleccione el tipo de medición de sensor"),
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
