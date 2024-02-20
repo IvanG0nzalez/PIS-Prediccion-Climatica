@@ -66,7 +66,33 @@ class HistorialControl {
         }
     }
 
-    
+    async obtener_historiales_actual(req, res) {
+
+        var sensores_historial = await sensor.findAll({
+            attributes: [['alias', 'nombre_sensor'], 'tipo_medicion', 'external_id'],
+            include: [
+                {
+                    model: models.historial_climatico,
+                    as: "historial_climatico",
+                    attributes: ['fecha', 'hora', 'valor_medido', 'external_id'],
+                    limit: 1,
+                    order: [['fecha', 'DESC'], ['hora', 'DESC']]
+                },
+            ],
+        });
+
+        if (sensores_historial.length === 0) {
+            res.status(200);
+            res.json({ msg: "No hay sensores registrados", code: 200, datos: {} });
+        } else {
+            const resultadoSinId = sensores_historial.map(sensor => {
+                const { id, ...resto } = sensor.get();
+                return resto;
+            });
+            res.status(200)
+            res.json({ msg: "OK", code: 200, datos: resultadoSinId });
+        }
+    }
     async validarGuardar(req, res, next){
         await check("sensor").notEmpty().withMessage("Debe ingresar un sensor").run(req);
     
