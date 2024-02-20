@@ -48,7 +48,7 @@ export default function AgregarSensor() {
   // Validaciones
   const validationSchema = Yup.object().shape({
     alias: Yup.string()
-      .required("Ingrese los alias del sensor")
+      .required("Ingrese el alias del sensor")
       .matches(
         /^[a-zA-Z0-9\s]+$/,
         "Ingrese solo letras, números y espacios en el campo de alias"
@@ -60,7 +60,7 @@ export default function AgregarSensor() {
         /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/,
         "Ingrese una dirección IP válida de tipo IPv4"
       ),
-    tipo_sensor: Yup.string().required("Seleccione el tipo de sensor"),
+    tipo_sensor: Yup.string().required("Seleccione el tipo de medición de sensor"),
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
@@ -77,7 +77,7 @@ export default function AgregarSensor() {
 
     console.log(dato);
     actualizar("admin/sensores/modificar" + external, dato, token).then(() => {
-      mensajes("Sensor modificado correctamente", "OK", "success");
+      mensajes("Información del sensor modificada correctamente", "OK", "success");
       router.push("/sensor");
     });
   };
