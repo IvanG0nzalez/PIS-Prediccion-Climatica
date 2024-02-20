@@ -25,7 +25,28 @@ class HistorialControl {
         res.json({ msg: "OK", code: 200, datos: lista });
     }
 
-    
+    async listar_hoy(req, res) {
+        const fechaActual = new Date().toISOString().slice(0, 10);
+        var lista = await historial.findAll({
+            where: { fecha: fechaActual},
+            include: [
+                {
+                    model: models.sensor,
+                    as: "sensor",
+                    attributes: ["external_id", "alias", "ip", "tipo_medicion"],
+                },
+            ],
+            attributes: ["fecha", "external_id", "hora", "valor_medido"],
+        });
+
+        console.log(lista.length);
+
+        if(lista.length === 0) {
+            res.status(404).json({ msg: "No hay registros para hoy", code: 404 });
+        } else {
+            res.status(200).json({ msg: "OK", code: 200, datos: lista });
+        }
+    }
 
     async obtener_por_fecha(req, res) {
         const fecha = req.params.fecha;
@@ -45,33 +66,7 @@ class HistorialControl {
         }
     }
 
-    async obtener_historiales_actual(req, res) {
-
-        var sensores_historial = await sensor.findAll({
-            attributes: [['alias', 'nombre_sensor'], 'tipo_medicion', 'external_id'],
-            include: [
-                {
-                    model: models.historial_climatico,
-                    as: "historial_climatico",
-                    attributes: ['fecha', 'hora', 'valor_medido', 'external_id'],
-                    limit: 1,
-                    order: [['fecha', 'DESC'], ['hora', 'DESC']]
-                },
-            ],
-        });
-
-        if (sensores_historial.length === 0) {
-            res.status(200);
-            res.json({ msg: "No hay sensores registrados", code: 200, datos: {} });
-        } else {
-            const resultadoSinId = sensores_historial.map(sensor => {
-                const { id, ...resto } = sensor.get();
-                return resto;
-            });
-            res.status(200)
-            res.json({ msg: "OK", code: 200, datos: resultadoSinId });
-        }
-    }
+    
     async validarGuardar(req, res, next){
         await check("sensor").notEmpty().withMessage("Debe ingresar un sensor").run(req);
     
