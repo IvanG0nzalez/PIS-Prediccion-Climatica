@@ -57,11 +57,15 @@ class PrediccionClimaticaControl {
     const valores = historiales.map(historial => historial.valor_medido).reverse();
     const fechas = historiales.map(historial => `${historial.fecha} ${historial.hora}`).reverse();
 
-    const city = "Loja";
-    const apiKey = "a1a6bbf10a0d4b1289a25246240701";
-    const APIUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-    const dataU = await axios.get(APIUrl);
-    const valorReal = dataU.data.current.temp_c
+   
+    const APIUrl = `http://api.weatherapi.com/v1/forecast.json?key=a1a6bbf10a0d4b1289a25246240701&q=Loja&days=1&aqi=no&alerts=no`;
+    const response = await axios.get(APIUrl);
+    const valorReal = response.data.forecast.forecastday[0].hour.map(entry => {
+      return {
+          fecha_hora: entry.time,
+          temperatura: entry.temp_c
+      };
+    });    
     if (!valorReal) {
       return res.status(500).json({ msg: "Error interno del servidor", code: 500 });
     }
@@ -89,16 +93,21 @@ class PrediccionClimaticaControl {
 
         const [fecha, hora] = fechaHora.split(' ');
 
+        const valorReal_Prediccion = valorReal.find(entry => {
+          const horaPrediccion = hora.slice(0, 2);
+          const horaValorReal = entry.fecha_hora.split(' ')[1].slice(0, 2);
+          return horaValorReal === horaPrediccion;
+        });
+
         const nuevaPrediccion = await prediccion.create({
           fecha: fecha,
           hora: hora,
           valor_calculado: valor,
-          valor_real: valorReal,
+          valor_real: valorReal_Prediccion ? valorReal_Prediccion.temperatura : valor,
           tipo: tipo,
           tipo_medicion: tipo_medicion,
           external_id: uuid.v4()
         });
-
         for (const historial of historiales) {
           await historial.addPredicciones(nuevaPrediccion);
         }
@@ -125,26 +134,26 @@ class PrediccionClimaticaControl {
   //DATA REAL}
 
 
-  // async weather(req, res) {
-  //   const city = "Loja";
-  //     const apiKey = "a1a6bbf10a0d4b1289a25246240701";
-  //     const APIUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-  //     const dataU = await axios.get(APIUrl);
-  //     const valorReal = dataU.data.current.temp_c
-  //     console.log(valorReal)
-  //   let weather=dataU.data;
-  //   let error = null;
-  //   try {
-  //     //console.log(response)
-  //     //weather = response.data;
-  //     console.log(weather.current.temp_c)
-  //     res.status(200).json({ msg: "OK", code: 200, datos: weather });
-  //   } catch (error) {
-  //     weather = null;
-  //     error = "Error al obtener Datos";
-  //     res.status(500).json({ msg: "500", code: 500, datos: {} });
-  //   }
-  // }
+  /*async weather(req, res) {
+    const APIUrl = 'http://api.weatherapi.com/v1/forecast.json?key=a1a6bbf10a0d4b1289a25246240701&q=Loja&days=1&aqi=no&alerts=no';
+
+    try {
+        const response = await axios.get(APIUrl);
+        const weatherData = response.data.forecast.forecastday[0].hour.map(entry => {
+          return {
+            fecha_hora: entry.time,
+            temperatura: entry.temp_c
+          };
+      });
+
+
+        res.status(200).json({ msg: 'OK', code: 200, datos: weatherData });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error en la Apu', code: 500, datos: {} });
+    }
+}*/
+
 }
 
 module.exports = PrediccionClimaticaControl;
