@@ -78,11 +78,6 @@ const ObtenerSensor = () => {
           transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .sensor-item:hover {
-          transform: scale(1.05);
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        }
-
         .sensor-header {
           display: flex;
           justify-content: space-between;

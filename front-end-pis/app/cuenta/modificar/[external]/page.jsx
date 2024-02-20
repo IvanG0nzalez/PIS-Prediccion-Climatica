@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getToken } from "@/hooks/SessionUtil";
+import { getToken, estaSesion } from "@/hooks/SessionUtil";
 import mensajes from "@/componentes/Mensajes";
 import { obtener, actualizar } from "@/hooks/Conexion";
 
@@ -15,6 +15,11 @@ export default function ModificarUsuario() {
   const token = getToken();
   const { external } = useParams();
   const [usuario, setUsuario] = useState({});
+
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
 
   useEffect(() => {
     const infoUsuario = async () => {
@@ -136,7 +141,7 @@ export default function ModificarUsuario() {
                       {...register("clave")}
                       name="clave"
                       id="clave"
-                      // type=""
+                      type="password"
                       className={`form-control ${
                         errors.clave ? "is-invalid" : ""
                       }`}

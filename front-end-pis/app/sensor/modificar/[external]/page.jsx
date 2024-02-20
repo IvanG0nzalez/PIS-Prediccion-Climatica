@@ -7,13 +7,18 @@ import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect } from "react";
 import mensajes from "@/componentes/Mensajes";
-import { getToken } from "@/hooks/SessionUtil";
+import { getToken, estaSesion } from "@/hooks/SessionUtil";
 import { obtener, actualizar } from "@/hooks/Conexion";
 
 export default function AgregarSensor() {
   const router = useRouter();
   const token = getToken();
   const { external } = useParams();
+
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
 
   useEffect(() => {
     const infoSensor = async () => {
