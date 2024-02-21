@@ -59,6 +59,8 @@ const ObtenerPrediccion = () => {
               ))}
             </tbody>
           </table>
+          <div style={{ marginBottom: '25px' }}></div>
+
         </div>
       ))}
 

@@ -54,8 +54,11 @@ const ObtenerCuenta = () => {
                 <td>{cuenta.nombres}</td>
                 <td>{cuenta.apellidos}</td>
                 <td>{cuenta.cedula}</td>
-                <td>{cuenta.rol.nombre}</td>
                 <td>
+                  <a href="https://chat.openai.com/" target="_blank" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+                    {cuenta.rol.nombre}
+                  </a>
+                </td>            <td>
                   <Link href={`/cuenta/modificar/${cuenta.external_id}`}>
                     <button className="btn btn-primary">Modificar</button>
                   </Link>
