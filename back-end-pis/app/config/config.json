@@ -1,0 +1,35 @@
+{
+    "development": {
+        "username": "avnadmin",
+        "password": "AVNS_NkOFBJLJAtHuSqc-dFz",
+        "database": "defaultdb",
+        "dialect": "mysql",
+        "host": "db-clima-prediccion-climatica.a.aivencloud.com",
+        "port": 24363,
+        "ssl": true,
+        "sslMode": "REQUIRED",
+        "operatorAliases": false
+    },
+    "staging": {
+        "username": "avnadmin",
+        "password": "AVNS_NkOFBJLJAtHuSqc-dFz",
+        "database": "defaultdb",
+        "dialect": "mysql",
+        "host": "db-clima-prediccion-climatica.a.aivencloud.com",
+        "port": 24363,
+        "ssl": true,
+        "sslMode": "REQUIRED",
+        "operatorAliases": false
+    },
+    "production": {
+        "username": "avnadmin",
+        "password": "AVNS_NkOFBJLJAtHuSqc-dFz",
+        "database": "defaultdb",
+        "dialect": "mysql",
+        "host": "db-clima-prediccion-climatica.a.aivencloud.com",
+        "port": 24363,
+        "ssl": true,
+        "sslMode": "REQUIRED",
+        "operatorAliases": false
+    }
+}
