@@ -8,13 +8,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import mensajes from "@/componentes/Mensajes";
 import { enviar, obtener } from "@/hooks/Conexion";
-import { getToken } from "@/hooks/SessionUtil";
+import { getToken, estaSesion} from "@/hooks/SessionUtil";
 
 export default function AgregarUsuario() {
   const router = useRouter();
   const token = getToken();
   const [roles, setRoles] = useState([]);
   const [selectedRol, setSelectedRol] = useState("");
+
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
 
   // Validaciones
   const validationSchema = Yup.object().shape({
@@ -146,6 +151,7 @@ export default function AgregarUsuario() {
                 <input
                   {...register("clave")}
                   name="clave"
+                  type="password"
                   id="clave"
                   className={`form-control ${errors.clave ? "is-invalid" : ""}`}
                 />
@@ -163,7 +169,9 @@ export default function AgregarUsuario() {
                   name="id_rol"
                   id="id_rol"
                   defaultValue=""
-                  className={`form-control ${errors.id_rol ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    errors.id_rol ? "is-invalid" : ""
+                  }`}
                   onChange={(e) => {
                     setSelectedRol(e.target.value);
                     setValue("id_rol", e.target.value);
