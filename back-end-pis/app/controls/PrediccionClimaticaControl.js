@@ -32,11 +32,18 @@ class PrediccionClimaticaControl {
   async obtenerPredicciones(tipo_medicion) {
     var predicciones = await prediccion.findAll({
       where: { tipo_medicion: tipo_medicion },
-      attributes: ["fecha", "hora", "valor_calculado", "valor_real", "tipo_medicion", "external_id"],
+      attributes: [
+        "fecha", 
+        [models.sequelize.literal("DATE_FORMAT(hora, '%h %p')"), "hora"], 
+        "valor_calculado", 
+        "valor_real", 
+        "tipo_medicion", 
+        "external_id"
+      ],
       limit: 4,
       order: [
-        ["fecha", "DESC"],
-        ["hora", "DESC"],
+        ["fecha", "ASC"],
+        [models.sequelize.literal("TIME(hora)"), "ASC"],
       ],
     });
 
@@ -86,13 +93,13 @@ class PrediccionClimaticaControl {
       prediccionJson.forEach(async (element) => {
         const fechaHora = element[0];
         const valor = element[1];
-
+        const valorCalculado = parseFloat(valor).toFixed(2);
         const [fecha, hora] = fechaHora.split(' ');
 
         const nuevaPrediccion = await prediccion.create({
           fecha: fecha,
           hora: hora,
-          valor_calculado: valor,
+          valor_calculado: valorCalculado,
           valor_real: valorReal,
           tipo: tipo,
           tipo_medicion: tipo_medicion,
