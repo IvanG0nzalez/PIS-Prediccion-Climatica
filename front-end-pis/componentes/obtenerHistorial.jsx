@@ -27,7 +27,7 @@ const ObtenerHistorial = () => {
   const [historiales, setHistoriales] = useState([]);
   const [historialesG, setHistorialesG] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const [historialPorPagina] = useState(250);
+  const [historialPorPagina] = useState(100);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,6 +90,42 @@ const ObtenerHistorial = () => {
       },
     },
     responsive: true,
+  };
+
+  const botonesPaginacion = () => {
+    const paginasTotales = Math.ceil(historiales.length / historialPorPagina);
+    const botonesMostrar = [];
+    const botonesMaximos = 10;
+
+    let inicio = Math.max(1, paginaActual - Math.floor(botonesMaximos / 2));
+    let fin = Math.min(paginasTotales, inicio + botonesMaximos - 1);
+
+    if (inicio + botonesMaximos - 1 > paginasTotales) {
+      inicio -= inicio + botonesMaximos - 1 - paginasTotales;
+    }
+
+    for (let i = inicio; i <= fin; i++) {
+      botonesMostrar.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`pagination-button ${paginaActual === i ? "active" : ""}`}
+          style={{
+            padding: "5px 10px",
+            margin: "2px",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+            backgroundColor: paginaActual === i ? "#007bff" : "#fff",
+            color: paginaActual === i ? "#fff" : "#007bff",
+            fontWeight: paginaActual === i ? "bold" : "normal",
+          }}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return botonesMostrar;
   };
 
   const obtenerDatosPorSensor = (alias, fechas) => {
@@ -166,20 +202,7 @@ const ObtenerHistorial = () => {
           >
             «
           </button>
-          {Array.from(
-            { length: Math.ceil(historiales.length / historialPorPagina) },
-            (_, index) => (
-              <button
-                key={index}
-                onClick={() => paginate(index + 1)}
-                className={`pagination-button ${
-                  paginaActual === index + 1 ? "active" : ""
-                }`}
-              >
-                {index + 1}
-              </button>
-            )
-          )}
+          {botonesPaginacion()}
           <button
             onClick={() => paginate(paginaActual + 1)}
             disabled={
@@ -217,40 +240,6 @@ const ObtenerHistorial = () => {
             ))}
           </tbody>
         </table>
-
-        {/* <div className="pagination">
-          <button
-            onClick={() => paginate(paginaActual - 1)}
-            disabled={paginaActual === 1}
-            className="pagination-button"
-          >
-            Anterior
-          </button>
-          {Array.from(
-            { length: Math.ceil(historiales.length / historialPorPagina) },
-            (_, index) => (
-              <button
-                key={index}
-                onClick={() => paginate(index + 1)}
-                className={`pagination-button ${
-                  paginaActual === index + 1 ? "active" : ""
-                }`}
-              >
-                {index + 1}
-              </button>
-            )
-          )}
-          <button
-            onClick={() => paginate(paginaActual + 1)}
-            disabled={
-              paginaActual ===
-              Math.ceil(historiales.length / historialPorPagina)
-            }
-            className="pagination-button"
-          >
-            Siguiente
-          </button>
-        </div> */}
       </div>
 
       <div className="charts-container">
@@ -318,17 +307,20 @@ const ObtenerHistorial = () => {
           margin: 20px;
         }
 
+        .pagination {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+
         .pagination-button {
           padding: 5px 10px;
           margin: 2px;
           border: 1px solid #ccc;
           cursor: pointer;
-        }
-
-        .pagination-button.active {
-          background-color: #007bff;
-          color: #fff;
-          font-weight: bold;
+          background-color: #fff;
+          color: #007bff;
         }
       `}</style>
     </div>
