@@ -1,15 +1,37 @@
 "use strict";
 
 const { check, validationResult } = require("express-validator");
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 var models = require("../models");
 var historial = models.historial_climatico;
 var prediccion = models.prediccion_climatica;
 var sensor = models.sensor;
 
 class HistorialControl {
-
     //LISTAR HISTORIAL
+    async listar_hoy(req, res) {
+        const fechaActual = new Date().toISOString().slice(0, 10);
+        var lista = await historial.findAll({
+            where: { fecha: fechaActual },
+            include: [
+                {
+                    model: models.sensor,
+                    as: "sensor",
+                    attributes: ["external_id", "alias", "ip", "tipo_medicion"],
+                },
+            ],
+            attributes: ["fecha", "external_id", "hora", "valor_medido"],
+        });
+
+        console.log(lista.length);
+
+        if (lista.length === 0) {
+            res.status(404).json({ msg: "No hay registros para hoy", code: 404 });
+        } else {
+            res.status(200).json({ msg: "OK", code: 200, datos: lista });
+        }
+    }
+
     async listar(req, res) {
         var lista = await historial.findAll({
             include: [
@@ -26,9 +48,12 @@ class HistorialControl {
     }
 
     async listar_hoy(req, res) {
-        const fechaActual = new Date().toISOString().slice(0, 10);
+        const fechaHoraActual = new Date();
+        const fechaActual = fechaHoraActual.toLocaleDateString('en-GB');
+        const fechaActualFormateada = fechaActual.split('/').reverse().join('-');
+        
         var lista = await historial.findAll({
-            where: { fecha: fechaActual},
+            where: { fecha: fechaActualFormateada},
             include: [
                 {
                     model: models.sensor,
@@ -39,12 +64,17 @@ class HistorialControl {
             attributes: ["fecha", "external_id", "hora", "valor_medido"],
         });
 
-        console.log(lista.length);
 
-        if(lista.length === 0) {
-            res.status(404).json({ msg: "No hay registros para hoy", code: 404 });
+        if (sensores_historial.length === 0) {
+            res.status(200);
+            res.json({ msg: "No hay sensores registrados", code: 200, datos: {} });
         } else {
-            res.status(200).json({ msg: "OK", code: 200, datos: lista });
+            const resultadoSinId = sensores_historial.map((sensor) => {
+                const { id, ...resto } = sensor.get();
+                return resto;
+            });
+            res.status(200);
+            res.json({ msg: "OK", code: 200, datos: resultadoSinId });
         }
     }
 
@@ -53,9 +83,13 @@ class HistorialControl {
         var lista = await historial.findAll({
             where: { fecha: fecha },
             include: [
-                { model: models.sensor, as: "sensor", attributes: ['alias', 'tipo_medicion', 'external_id'] },
+                {
+                    model: models.sensor,
+                    as: "sensor",
+                    attributes: ["alias", "tipo_medicion", "external_id"],
+                },
             ],
-            attributes: ['fecha', 'hora', 'valor_medido', 'external_id']
+            attributes: ["fecha", "hora", "valor_medido", "external_id"],
         });
         if (lista === undefined || lista === null) {
             res.status(404);
@@ -66,48 +100,27 @@ class HistorialControl {
         }
     }
 
-    async obtener_historiales_actual(req, res) {
+    async validarGuardar(req, res, next) {
+        await check("sensor")
+            .notEmpty()
+            .withMessage("Debe ingresar un sensor")
+            .run(req);
 
-        var sensores_historial = await sensor.findAll({
-            attributes: [['alias', 'nombre_sensor'], 'tipo_medicion', 'external_id'],
-            include: [
-                {
-                    model: models.historial_climatico,
-                    as: "historial_climatico",
-                    attributes: ['fecha', 'hora', 'valor_medido', 'external_id'],
-                    limit: 1,
-                    order: [['fecha', 'DESC'], ['hora', 'DESC']]
-                },
-            ],
-        });
-
-        if (sensores_historial.length === 0) {
-            res.status(200);
-            res.json({ msg: "No hay sensores registrados", code: 200, datos: {} });
-        } else {
-            const resultadoSinId = sensores_historial.map(sensor => {
-                const { id, ...resto } = sensor.get();
-                return resto;
-            });
-            res.status(200)
-            res.json({ msg: "OK", code: 200, datos: resultadoSinId });
-        }
-    }
-    async validarGuardar(req, res, next){
-        await check("sensor").notEmpty().withMessage("Debe ingresar un sensor").run(req);
-    
-        const errors = validationResult(req).formatWith(({ msg, value }) => ({ msg, value }));
+        const errors = validationResult(req).formatWith(({ msg, value }) => ({
+            msg,
+            value,
+        }));
         //console.log(errors.formatWith(msg, value))
-      
+
         if (!errors.isEmpty()) {
-          return res.status(400).json({
-            msg: "ERROR",
-            tag: "Credenciales Invalidas",
-            code: 401,
-            errors: errors.array(),
-          });
+            return res.status(400).json({
+                msg: "ERROR",
+                tag: "Credenciales Invalidas",
+                code: 401,
+                errors: errors.array(),
+            });
         }
-      
+
         next();
     }
 
@@ -170,20 +183,27 @@ class HistorialControl {
         try {
             const sensorAux = await sensor.findOne({
                 where: { alias: "Atmosferica" },
-                attributes: ['ip'],
+                attributes: ["ip"],
             });
 
             if (!sensorAux) {
-                throw new Error('No se encontró el sensor de presión atmosférica');
+                throw new Error("No se encontró el sensor de presión atmosférica");
             }
 
             const ip = sensorAux.ip;
             const recurso = `http://${ip}/`; //Aquí poner la dirección del esp32
             console.log("recurso", recurso);
             const informacion = await this.obtener_datos(recurso);
-            
-            if (!informacion || informacion.Temperatura === undefined || informacion.Humedad === undefined || informacion.Atmosferica === undefined) {
-                throw new Error('Faltan datos de los sensores, no se guardaron los historiales');
+
+            if (
+                !informacion ||
+                informacion.Temperatura === undefined ||
+                informacion.Humedad === undefined ||
+                informacion.Atmosferica === undefined
+            ) {
+                throw new Error(
+                    "Faltan datos de los sensores, no se guardaron los historiales"
+                );
             }
 
             console.log(informacion);
@@ -193,22 +213,26 @@ class HistorialControl {
 
             const sensorTemp = await sensor.findOne({
                 where: { alias: "Temperatura" },
-                transaction
+                transaction,
             });
             const sensorHume = await sensor.findOne({
                 where: { alias: "Humedad" },
-                transaction
+                transaction,
             });
 
             const sensorAtmo = await sensor.findOne({
                 where: { alias: "Atmosferica" },
-                transaction
+                transaction,
             });
 
             const fechaHoraActual = new Date();
-            const fechaActual = fechaHoraActual.toLocaleDateString('en-GB');
-            const fechaActualFormateada = fechaActual.split('/').reverse().join('-');
-            const horaActual = fechaHoraActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit'});
+            const fechaActual = fechaHoraActual.toLocaleDateString("en-GB");
+            const fechaActualFormateada = fechaActual.split("/").reverse().join("-");
+            const horaActual = fechaHoraActual.toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            });
 
             const dataTemperatura = {
                 fecha: fechaActualFormateada,
@@ -230,48 +254,53 @@ class HistorialControl {
                 fecha: fechaActualFormateada,
                 external_id: uuid.v4(),
                 hora: horaActual,
-                valor_medido: informacion.Atmosferica,
+                valor_medido: informacion.Atmosferica.toFixed(2),
                 id_sensor: sensorAtmo.id,
-            }
+            };
 
             console.log(dataTemperatura);
             console.log(dataHumedad);
             console.log(dataAtmosferica);
-            
-            const resultTemperatura = await historial.create(dataTemperatura, { transaction });
-            const resultHumedad = await historial.create(dataHumedad, { transaction });
-            const resultAtmosferica = await historial.create(dataAtmosferica, { transaction });
-            
+
+            const resultTemperatura = await historial.create(dataTemperatura, {
+                transaction,
+            });
+            const resultHumedad = await historial.create(dataHumedad, {
+                transaction,
+            });
+            const resultAtmosferica = await historial.create(dataAtmosferica, {
+                transaction,
+            });
+
             await transaction.commit();
 
             if (!resultTemperatura || !resultHumedad || !resultAtmosferica) {
-                throw new Error('No se guardaron todos los historiales climáticos');
+                throw new Error("No se guardaron todos los historiales climáticos");
             } else {
                 console.log("Se guardaron todos los historiales climáticos");
             }
-            
         } catch (error) {
             if (transaction) await transaction.rollback();
-            throw new Error('Error guardando los historiales climáticos automáticamente: ' + error.message);
+            throw new Error(
+                "Error guardando los historiales climáticos automáticamente: " +
+                error.message
+            );
         }
     }
 
     async obtener_datos(recurso) {
         const headers = {
-            "Accept": "application/json",
-            "Content-type": "application/json"
-        }
+            Accept: "application/json",
+            "Content-type": "application/json",
+        };
         const response = await fetch(recurso, {
-            cache: 'no-store',
+            cache: "no-store",
             method: "GET",
             headers: headers,
         });
         const responseData = await response.json();
         return responseData;
     }
-
-
-
 }
 
 module.exports = HistorialControl;
