@@ -26,9 +26,12 @@ class HistorialControl {
     }
 
     async listar_hoy(req, res) {
-        const fechaActual = new Date().toISOString().slice(0, 10);
+        const fechaHoraActual = new Date();
+        const fechaActual = fechaHoraActual.toLocaleDateString('en-GB');
+        const fechaActualFormateada = fechaActual.split('/').reverse().join('-');
+        
         var lista = await historial.findAll({
-            where: { fecha: fechaActual},
+            where: { fecha: fechaActualFormateada},
             include: [
                 {
                     model: models.sensor,
@@ -39,7 +42,6 @@ class HistorialControl {
             attributes: ["fecha", "external_id", "hora", "valor_medido"],
         });
 
-        console.log(lista.length);
 
         if(lista.length === 0) {
             res.status(404).json({ msg: "No hay registros para hoy", code: 404 });
@@ -230,7 +232,7 @@ class HistorialControl {
                 fecha: fechaActualFormateada,
                 external_id: uuid.v4(),
                 hora: horaActual,
-                valor_medido: informacion.Atmosferica,
+                valor_medido: informacion.Atmosferica.toFixed(2),
                 id_sensor: sensorAtmo.id,
             }
 
