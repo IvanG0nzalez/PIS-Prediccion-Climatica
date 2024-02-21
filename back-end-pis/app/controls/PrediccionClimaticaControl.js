@@ -68,10 +68,25 @@ class PrediccionClimaticaControl {
     const APIUrl = `http://api.weatherapi.com/v1/forecast.json?key=a1a6bbf10a0d4b1289a25246240701&q=Loja&days=1&aqi=no&alerts=no`;
     const response = await axios.get(APIUrl);
     const valorReal = response.data.forecast.forecastday[0].hour.map(entry => {
-      return {
+      if (tipo_medicion == "Humedad") {
+        return {
           fecha_hora: entry.time,
-          temperatura: entry.temp_c
+          valor_real: entry.humidity
+      };  
+      }if (tipo_medicion=="Temperatura") {
+      
+        return {
+          fecha_hora: entry.time,
+          valor_real: entry.temp_c
       };
+        
+      }else{
+        return {
+          fecha_hora: entry.time,
+          valor_real: entry.pressure_mb
+      };
+      }
+      
     });    
     if (!valorReal) {
       return res.status(500).json({ msg: "Error interno del servidor", code: 500 });
@@ -110,7 +125,7 @@ class PrediccionClimaticaControl {
           fecha: fecha,
           hora: hora,
           valor_calculado: valorCalculado,
-          valor_real: valorReal_Prediccion ? valorReal_Prediccion.temperatura : valor,
+          valor_real: valorReal_Prediccion ? valorReal_Prediccion.valor_real : valor,
           tipo: tipo,
           tipo_medicion: tipo_medicion,
           external_id: uuid.v4()
@@ -140,17 +155,34 @@ class PrediccionClimaticaControl {
   }
   //DATA REAL}
 
-
-  /*async weather(req, res) {
+/*
+  async weather(req, res) {
     const APIUrl = 'http://api.weatherapi.com/v1/forecast.json?key=a1a6bbf10a0d4b1289a25246240701&q=Loja&days=1&aqi=no&alerts=no';
 
     try {
         const response = await axios.get(APIUrl);
+        const tipo_medicion="Atmosferica"
         const weatherData = response.data.forecast.forecastday[0].hour.map(entry => {
-          return {
-            fecha_hora: entry.time,
-            temperatura: entry.temp_c
-          };
+            if (tipo_medicion == "Humedad") {
+              return {
+                fecha_hora: entry.time,
+                valor_real: entry.humidity
+            };  
+            }if (tipo_medicion=="Temperatura") {
+            
+              return {
+                fecha_hora: entry.time,
+                valor_real: entry.temp_c
+            };
+              
+            }else{
+              return {
+                fecha_hora: entry.time,
+                valor_real: entry.pressure_mb
+            };
+            }
+            
+          
       });
 
 
