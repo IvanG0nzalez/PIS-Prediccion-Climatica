@@ -47,23 +47,23 @@ class HistorialControl {
         res.json({ msg: "OK", code: 200, datos: lista });
     }
 
-
-    async obtener_historiales_actual(req, res) {
-        var sensores_historial = await sensor.findAll({
-            attributes: [["alias", "nombre_sensor"], "tipo_medicion", "external_id"],
+    async listar_hoy(req, res) {
+        const fechaHoraActual = new Date();
+        const fechaActual = fechaHoraActual.toLocaleDateString('en-GB');
+        const fechaActualFormateada = fechaActual.split('/').reverse().join('-');
+        
+        var lista = await historial.findAll({
+            where: { fecha: fechaActualFormateada},
             include: [
                 {
-                    model: models.historial_climatico,
-                    as: "historial_climatico",
-                    attributes: ["fecha", "hora", "valor_medido", "external_id"],
-                    limit: 1,
-                    order: [
-                        ["fecha", "DESC"],
-                        ["hora", "DESC"],
-                    ],
+                    model: models.sensor,
+                    as: "sensor",
+                    attributes: ["external_id", "alias", "ip", "tipo_medicion"],
                 },
             ],
+            attributes: ["fecha", "external_id", "hora", "valor_medido"],
         });
+
 
         if (sensores_historial.length === 0) {
             res.status(200);
@@ -254,7 +254,7 @@ class HistorialControl {
                 fecha: fechaActualFormateada,
                 external_id: uuid.v4(),
                 hora: horaActual,
-                valor_medido: informacion.Atmosferica,
+                valor_medido: informacion.Atmosferica.toFixed(2),
                 id_sensor: sensorAtmo.id,
             };
 
