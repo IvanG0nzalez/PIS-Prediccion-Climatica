@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:movil_pis/controls/servicio_back/FacadeService.dart';
+import 'package:Climatify/controls/servicio_back/FacadeService.dart';
 
 class HistorialView extends StatefulWidget {
   const HistorialView({Key? key}) : super(key: key);
@@ -46,32 +46,33 @@ class _HistorialViewState extends State<HistorialView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Historial'),
+        title: const Text('Historial de Registros'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              children: [
-                _buildChart(temperatura, 'Temperatura'),
-                _buildChart(humedad, 'Humedad'),
-                _buildChart(presion, 'Presión'),
-              ],
-            ),
-          ),
-          if (dataLoaded)
-            Container(
-              constraints: BoxConstraints(
-                  maxHeight: 200), // Ajusta el valor según sea necesario
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: _buildTable(temperatura),
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                children: [
+                  if (dataLoaded)
+                    _buildChart(temperatura, 'Temperatura')
+                  else
+                    _buildLoadingIndicator(),
+                  if (dataLoaded)
+                    _buildChart(humedad, 'Humedad')
+                  else
+                    _buildLoadingIndicator(),
+                  if (dataLoaded)
+                    _buildChart(presion, 'Presión')
+                  else
+                    _buildLoadingIndicator(),
+                ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -82,10 +83,9 @@ class _HistorialViewState extends State<HistorialView> {
         children: [
           SfCartesianChart(
             title: ChartTitle(text: title),
-            legend: Legend(isVisible: true),
             primaryXAxis: const CategoryAxis(
               majorGridLines: MajorGridLines(
-                  width: 0), // Oculta las líneas de la cuadrícula principal
+                  width: 0),
             ),
             series: _getDefaultData(data),
             zoomPanBehavior: ZoomPanBehavior(
@@ -93,45 +93,92 @@ class _HistorialViewState extends State<HistorialView> {
               enablePinching: true,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
+          if (dataLoaded)
+        Container(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildTable(data),
+            ),
+          ),
+        ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: CircularProgressIndicator(),
     );
   }
 
   Widget _buildTable(List<dynamic> data) {
     List<TableRow> rows = [];
 
-    for (var val in data) {
-      String dateString = val['fecha'] + ' ' + val['hora'];
-      DateTime dateTime = DateTime.parse(dateString).toLocal();
-      double value = val['valor_medido'].toDouble();
-
-      rows.add(TableRow(
+    rows.add(
+      TableRow(
+        decoration: BoxDecoration(color: Colors.grey[200]),
         children: [
           TableCell(
-              child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(dateTime.toString()))),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Fecha', textAlign: TextAlign.center),
+            ),
+          ),
           TableCell(
-              child: Padding(
-                  padding: EdgeInsets.all(8.0), child: Text(value.toString()))),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Hora', textAlign: TextAlign.center),
+            ),
+          ),
+          TableCell(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Valor Medido', textAlign: TextAlign.center),
+            ),
+          ),
         ],
-      ));
+      ),
+    );
+
+    for (var val in data) {
+      String fecha = val['fecha'];
+      String hora = val['hora'];
+      double value = val['valor_medido'].toDouble();
+
+      rows.add(
+        TableRow(
+          children: [
+            TableCell(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(fecha, textAlign: TextAlign.center),
+              ),
+            ),
+            TableCell(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(hora, textAlign: TextAlign.center),
+              ),
+            ),
+            TableCell(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(value.toString(), textAlign: TextAlign.center),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return Table(
       border: TableBorder.all(),
-      children: [
-        TableRow(
-          decoration: BoxDecoration(color: Colors.grey[200]),
-          children: [
-            Padding(padding: EdgeInsets.all(8.0), child: Text('Fecha y Hora')),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('Valor Medido')),
-          ],
-        ),
-        ...rows,
-      ],
+      children: rows,
     );
   }
 
