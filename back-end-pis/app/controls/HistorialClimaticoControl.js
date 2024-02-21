@@ -9,21 +9,6 @@ var sensor = models.sensor;
 
 class HistorialControl {
     //LISTAR HISTORIAL
-    async listar(req, res) {
-        var lista = await historial.findAll({
-            include: [
-                {
-                    model: models.sensor,
-                    as: "sensor",
-                    attributes: ["external_id", "alias", "ip", "tipo_medicion"],
-                },
-            ],
-            attributes: ["fecha", "external_id", "hora", "valor_medido"],
-        });
-        res.status(200);
-        res.json({ msg: "OK", code: 200, datos: lista });
-    }
-
     async listar_hoy(req, res) {
         const fechaActual = new Date().toISOString().slice(0, 10);
         var lista = await historial.findAll({
@@ -46,6 +31,22 @@ class HistorialControl {
             res.status(200).json({ msg: "OK", code: 200, datos: lista });
         }
     }
+
+    async listar(req, res) {
+        var lista = await historial.findAll({
+            include: [
+                {
+                    model: models.sensor,
+                    as: "sensor",
+                    attributes: ["external_id", "alias", "ip", "tipo_medicion"],
+                },
+            ],
+            attributes: ["fecha", "external_id", "hora", "valor_medido"],
+        });
+        res.status(200);
+        res.json({ msg: "OK", code: 200, datos: lista });
+    }
+
 
     async obtener_historiales_actual(req, res) {
         var sensores_historial = await sensor.findAll({
