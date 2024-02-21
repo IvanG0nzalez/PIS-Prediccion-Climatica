@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:movil_pis/views/exception/NoData.dart';
-import 'package:movil_pis/views/historialView.dart';
-import 'package:movil_pis/views/principalView.dart';
-import 'package:movil_pis/views/exception/Page404.dart';
+import 'package:Climatify/views/exception/NoData.dart';
+import 'package:Climatify/views/historialView.dart';
+import 'package:Climatify/views/principalView.dart';
+import 'package:Climatify/views/exception/Page404.dart';
 
 void main() {
   runApp(const MyApp());
