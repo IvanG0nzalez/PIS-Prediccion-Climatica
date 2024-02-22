@@ -38,7 +38,7 @@ const ObtenerPrediccion = () => {
     <div className="container">
       {Object.entries(reportesPorHoras).map(([hora, reportesHora], index) => (
         <div key={index}>
-          <h3>{`Reportes para ${hora}`}</h3>
+          <h3>{`Reportes del ${hora}`}</h3>
           <table>
             <thead>
               <tr>
