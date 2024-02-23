@@ -11,7 +11,7 @@ const ObtenerPrediccion = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
-      const response = await obtener("admin/reporte", token);
+      const response = await obtener("reporte", token);
       setReportes(response.datos);
     };
 
@@ -24,60 +24,62 @@ const ObtenerPrediccion = () => {
     return LoadingScreen();
   }
 
-  return (
-    <div>
-      <div style={{ display: "flex" }}>
-        <div style={{ flex: 1 }}>
-          <div className="list-group">
-            {reportes.map((reporte, i) => (
-              <div key={i} className="list-group-item">
-                <div className="content">
-                  <h5>
-                    {reporte.fecha} - {reporte.hora}
-                  </h5>
-                  <p> {reporte.valor_calculado} </p>
-                  <p> {reporte.valor_real} </p>
-                  {/* <p> {reporte.error} </p> */}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+  // Reporte por hora
+  const reportesPorHoras = reportes.reduce((acc, reporte) => {
+    const hora = `${reporte.fecha} - ${reporte.hora}`;
+    if (!acc[hora]) {
+      acc[hora] = [];
+    }
+    acc[hora].push(reporte);
+    return acc;
+  }, {});
 
-        <div style={{ flex: 1, position: "relative" }}>
-          {reportes.map((auto, i) => (
-            <div key={i} className="list-group-item"></div>
-          ))}
+  return (
+    <div className="container">
+      {Object.entries(reportesPorHoras).map(([hora, reportesHora], index) => (
+        <div key={index}>
+          <h3>{`Reportes del ${hora}`}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo Medicion</th>
+                <th>Valor Calculado</th>
+                <th>Valor Real</th>
+                <th>Diferencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reportesHora.map((reporte, i) => (
+                <tr key={i}>
+                  <td>{reporte.tipo_medicion}</td>
+                  <td>{reporte.valor_calculado}</td>
+                  <td>{reporte.valor_real}</td>
+                  <td>{reporte.error.toFixed(4)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ marginBottom: '25px' }}></div>
+
         </div>
-      </div>
+      ))}
 
       <style jsx>{`
-        .custom-carousel {
-          max-height: 200px;
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
         }
 
-        .custom-carousel-image {
-          max-height: 200px;
-          object-fit: contain;
+        th,
+        td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
         }
 
-        .list-group {
-          display: flex;
-          flex-wrap: wrap;
-        }
-
-        .list-group-item {
-          flex: 0 0 48%;
-          margin: 1%;
-        }
-
-        .content {
-          padding-right: 20px;
-        }
-
-        .button-container {
-          display: flex;
-          gap: 5px;
+        th {
+          background-color: #f2f2f2;
         }
       `}</style>
     </div>

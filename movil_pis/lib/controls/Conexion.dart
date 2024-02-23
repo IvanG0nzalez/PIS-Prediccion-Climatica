@@ -1,11 +1,11 @@
-import 'package:movil_pis/controls/servicio_back/RespuestaGenerica.dart';
-import 'package:movil_pis/controls/utiles/utiles.dart';
+import 'package:Climatify/controls/servicio_back/RespuestaGenerica.dart';
+import 'package:Climatify/controls/utiles/utiles.dart';
 import 'dart:developer';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class Conexion {
-  final String URL = "http://192.168.1.4:3000/api";
+  final String URL = "http://192.168.1.109:3000/api";
   //final String URL_MEDIA = "http://192.168.1.4:3000/multimedia/";
   //final String URL = "http://localhost:3000/api";
   //final String URL_MEDIA = "http://localhost:3000/multimedia/";

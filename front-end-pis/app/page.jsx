@@ -48,6 +48,7 @@ export default function Home() {
       style={{
         backgroundImage: 'url("./fondo.png")',
         backgroundSize: "contain",
+        backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         height: "100vh",
         justifyContent: "center",

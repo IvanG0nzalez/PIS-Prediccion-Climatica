@@ -95,7 +95,7 @@ const ObtenerHistorial = () => {
   const botonesPaginacion = () => {
     const paginasTotales = Math.ceil(historiales.length / historialPorPagina);
     const botonesMostrar = [];
-    const botonesMaximos = 5;
+    const botonesMaximos = 10;
 
     let inicio = Math.max(1, paginaActual - Math.floor(botonesMaximos / 2));
     let fin = Math.min(paginasTotales, inicio + botonesMaximos - 1);

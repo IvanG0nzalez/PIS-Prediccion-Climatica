@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:movil_pis/controls/servicio_back/FacadeService.dart';
-import 'package:movil_pis/views/exception/NoData.dart';
-import 'package:movil_pis/views/pronosticoWidget.dart';
+import 'package:Climatify/controls/servicio_back/FacadeService.dart';
+import 'package:Climatify/views/exception/NoData.dart';
+import 'package:Climatify/views/pronosticoWidget.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -14,12 +16,7 @@ class PrincipalView extends StatefulWidget {
 
 class _PrincipalViewState extends State<PrincipalView> {
   List<dynamic> datos = [];
-  final tuListaDePronosticoPorHoras = [
-    {'hora': '12:00 PM', 'temperatura': 25},
-    {'hora': '1:00 PM', 'temperatura': 26},
-    {'hora': '2:00 PM', 'temperatura': 27},
-    // Agrega más datos según sea necesario
-  ];
+  Map<String, dynamic> pronosticosPorHoras = {};
 
   @override
   void initState() {
@@ -33,6 +30,13 @@ class _PrincipalViewState extends State<PrincipalView> {
       setState(() {
         datos = value.datos;
       });
+      print(value.datos);
+    });
+    facadeService.predicciones().then((value) {
+      setState(() {
+        pronosticosPorHoras = value.datos;
+      });
+      print("predicciones");
       print(value.datos);
     });
   }
@@ -71,17 +75,15 @@ class _PrincipalViewState extends State<PrincipalView> {
 
     final temperatura = datos[0];
     final temperatura_valor = temperatura['historial_climatico'][0];
-
     final humedad = datos[1];
     final presion = datos[2];
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Climafy',
+              'Climatify',
               style: TextStyle(color: const Color.fromARGB(255, 90, 90, 90)),
             ),
             GestureDetector(
@@ -153,7 +155,7 @@ class _PrincipalViewState extends State<PrincipalView> {
               ),
               SizedBox(height: 16.0),
               PronosticoPorHorasWidget(
-                pronosticoPorHoras: tuListaDePronosticoPorHoras,
+                pronosticoPorHoras: pronosticosPorHoras,
               ),
             ],
           ),
@@ -173,6 +175,11 @@ class _PrincipalViewState extends State<PrincipalView> {
       required double fontSize}) {
     final historialClimatico = dato['historial_climatico'][0];
 
+    String tipoMedicion = dato['tipo_medicion'];
+    if (tipoMedicion == 'Atmosferica') {
+      tipoMedicion = 'Presión';
+    }
+
     return Card(
       color: Colors.white,
       elevation: 4.0,
@@ -187,7 +194,7 @@ class _PrincipalViewState extends State<PrincipalView> {
                 color: Colors.blueAccent, size: iconSize),
             SizedBox(height: 8.0),
             Text(
-              dato['tipo_medicion'],
+              tipoMedicion,
               style: TextStyle(color: Colors.blueAccent, fontSize: fontSize),
             ),
             SizedBox(height: 8.0),

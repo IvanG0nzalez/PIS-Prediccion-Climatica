@@ -22,7 +22,7 @@ if(schedulePrediccion){
             const horaActual = new Date().toLocaleString();
             console.error(`[${horaActual}] Error en schedule prediccion`, error);
         }
-    })
+    });
 }
 
 if(scheduleHistorial){
