@@ -9,11 +9,14 @@ import { useEffect } from "react";
 import mensajes from "@/componentes/Mensajes";
 import { getToken, estaSesion } from "@/hooks/SessionUtil";
 import { obtener, actualizar } from "@/hooks/Conexion";
+import React, { useState } from 'react';
 
 export default function AgregarSensor() {
   const router = useRouter();
   const token = getToken();
   const { external } = useParams();
+  const [sensorData, setSensorData] = useState({});
+  const [tipoMedicionSeleccionada, setTipoMedicionSeleccionada] = useState("");
 
   if (!estaSesion()) {
     router.push("/");
@@ -28,22 +31,27 @@ export default function AgregarSensor() {
       );
 
       if (response.code === 200) {
-        const sensorData = response.datos;
-
-        reset({
-          alias: sensorData.alias,
-          ip: sensorData.ip,
-          tipo_sensor: sensorData.tipo_sensor,
-        });
-
-        console.log(sensorData);
+        const sensorInfo = response.datos;
+        setSensorData(sensorInfo);
+        setTipoMedicionSeleccionada(sensorInfo.tipo_medicion);
       } else {
-        console.error("Error al obtener usuario");
+        console.error("Error al obtener sensor");
       }
     };
 
     infoSensor();
+
   }, []);
+
+  useEffect(() => {
+    if (Object.keys(sensorData).length > 0 && tipoMedicionSeleccionada !== "") {
+      reset({
+        alias: sensorData.alias,
+        ip: sensorData.ip,
+        tipo_medicion: tipoMedicionSeleccionada,
+      });
+    }
+  }, [sensorData, tipoMedicionSeleccionada]);
 
   // Validaciones
   const validationSchema = Yup.object().shape({
@@ -60,7 +68,7 @@ export default function AgregarSensor() {
         /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/,
         "Ingrese una dirección IP válida de tipo IPv4"
       ),
-    tipo_sensor: Yup.string().required("Seleccione el tipo de medición de sensor"),
+      tipo_medicion: Yup.string().required("Seleccione el tipo de medición de sensor"),
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
@@ -68,15 +76,15 @@ export default function AgregarSensor() {
   let { errors } = formState;
 
   const sendData = async (data) => {
-    console.log(data);
+    console.log("data", data);
     var dato = {
       alias: data.alias,
       ip: data.ip,
-      tipo_sensor: data.tipo_sensor,
+      tipo_medicion: data.tipo_medicion,
     };
 
-    console.log(dato);
-    actualizar("admin/sensores/modificar" + external, dato, token).then(() => {
+    console.log("dato", dato);
+    actualizar("admin/sensores/modificar/" + external, dato, token).then(() => {
       mensajes("Información del sensor modificada correctamente", "OK", "success");
       router.push("/sensor");
     });
@@ -131,7 +139,8 @@ export default function AgregarSensor() {
                   })}
                   name="tipo_medicion"
                   id="tipo_medicion"
-                  defaultValue=""
+                  value={tipoMedicionSeleccionada}
+                  onChange={(e) => setTipoMedicionSeleccionada(e.target.value)}
                   className={`form-control ${
                     errors.tipo_medicion ? "is-invalid" : ""
                   }`}
@@ -141,7 +150,7 @@ export default function AgregarSensor() {
                   </option>
                   <option value="Temperatura">Temperatura</option>
                   <option value="Humedad">Humedad</option>
-                  <option value="Atmosférica">Atmosférica</option>
+                  <option value="Atmosferica">Atmosférica</option>
                 </select>
                 <div className="alert alert-danger invalid-feedback">
                   {errors.tipo_medicion?.message}

@@ -26,7 +26,7 @@ if(schedulePrediccion){
 }
 
 if(scheduleHistorial){
-    const obtenerDatos = schedule.scheduleJob('*/20 * * * *', async () => {
+    const obtenerDatos = schedule.scheduleJob('*/2 * * * *', async () => {
         try {
             await historialControl.guardarAutomaticamente();
 
