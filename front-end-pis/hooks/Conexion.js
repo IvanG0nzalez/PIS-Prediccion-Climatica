@@ -1,4 +1,4 @@
-let URL = "http://localhost:3000/api/";
+let URL = "https://climatify.onrender.com/api/";
 export function url_api() {
   return URL;
 }
