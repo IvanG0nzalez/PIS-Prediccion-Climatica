@@ -65,11 +65,11 @@ class HistorialControl {
         });
 
 
-        if (sensores_historial.length === 0) {
+        if (lista.length === 0) {
             res.status(200);
             res.json({ msg: "No hay sensores registrados", code: 200, datos: {} });
         } else {
-            const resultadoSinId = sensores_historial.map((sensor) => {
+            const resultadoSinId = lista.map((sensor) => {
                 const { id, ...resto } = sensor.get();
                 return resto;
             });

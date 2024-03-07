@@ -14,6 +14,10 @@ class PrediccionClimaticaControl {
     var prediccionesHumedad = await this.obtenerPredicciones("Humedad");
     var prediccionesAtmosferica = await this.obtenerPredicciones("Atmosferica");
 
+    prediccionesTemperatura.reverse();
+    prediccionesHumedad.reverse();
+    prediccionesAtmosferica.reverse();
+
     var data = {
       temperatura: prediccionesTemperatura,
       humedad: prediccionesHumedad,
@@ -33,6 +37,7 @@ class PrediccionClimaticaControl {
     var predicciones = await prediccion.findAll({
       where: { tipo_medicion: tipo_medicion },
       attributes: [
+        "id",
         "fecha", 
         [models.sequelize.literal("DATE_FORMAT(hora, '%h %p')"), "hora"], 
         "valor_calculado", 
@@ -42,8 +47,7 @@ class PrediccionClimaticaControl {
       ],
       limit: 4,
       order: [
-        ["fecha", "ASC"],
-        [models.sequelize.literal("TIME(hora)"), "ASC"],
+        ["id", "DESC"]
       ],
     });
 
