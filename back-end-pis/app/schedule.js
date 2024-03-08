@@ -1,5 +1,6 @@
 require('dotenv').config()
 const schedule = require('node-schedule');
+const axios = require('axios');
 const models = require('./models');
 const historialC = require('./controls/HistorialClimaticoControl');
 let historialControl = new historialC();
@@ -38,5 +39,19 @@ if(scheduleHistorial){
         }
     });
 }
+
+const rule = new schedule.RecurrenceRule();
+rule.minute = new schedule.Range(0, 59);
+
+async function keepServiceAlive() {
+  try {
+    const response = await axios.get('https://climatify.onrender.com/predicciones');
+    console.log('Solicitud exitosa:', response.status);
+  } catch (error) {
+    console.error('Error al hacer la solicitud:', error.message);
+  }
+}
+
+const job = schedule.scheduleJob(rule, keepServiceAlive);
 
 
