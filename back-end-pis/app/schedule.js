@@ -45,7 +45,7 @@ rule.minute = new schedule.Range(0, 59);
 
 async function keepServiceAlive() {
   try {
-    const response = await axios.get('https://climatify.onrender.com/predicciones');
+    const response = await axios.get('https://climatify.onrender.com/api/predicciones');
     console.log('Solicitud exitosa:', response.status);
   } catch (error) {
     console.error('Error al hacer la solicitud:', error.message);
