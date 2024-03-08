@@ -53,8 +53,13 @@ export default function AgregarSensor() {
     });
   };
 
+  useEffect(() => {
+    if (!estaSesion()) {
+      router.push('/');
+    }
+  }, [router]);
+
   if (!estaSesion()) {
-    router.push("/");
     return null;
   }
 

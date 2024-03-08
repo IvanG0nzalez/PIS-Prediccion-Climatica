@@ -67,8 +67,13 @@ export default function AgregarUsuario() {
     });
   };
 
+  useEffect(() => {
+    if (!estaSesion()) {
+      router.push('/');
+    }
+  }, [router]);
+
   if (!estaSesion()) {
-    router.push("/");
     return null;
   }
 

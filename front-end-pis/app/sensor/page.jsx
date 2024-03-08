@@ -3,12 +3,18 @@ import Menu from "@/componentes/menu";
 import ObtenerSensor from "@/componentes/obtenerSensor";
 import { useRouter } from "next/navigation";
 import { estaSesion } from "@/hooks/SessionUtil";
+import { useEffect } from "react";
 
 export default function Historial() {
   const router = useRouter();
 
+  useEffect(() => {
+    if (!estaSesion()) {
+      router.push('/');
+    }
+  }, [router]);
+
   if (!estaSesion()) {
-    router.push("/");
     return null;
   }
 
