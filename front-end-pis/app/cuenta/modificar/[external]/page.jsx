@@ -16,10 +16,21 @@ export default function ModificarUsuario() {
   const { external } = useParams();
   const [usuario, setUsuario] = useState({});
 
-  if (!estaSesion()) {
-    router.push("/");
-    return null;
-  }
+  // Validations
+  const validationSchema = Yup.object().shape({
+    nombres: Yup.string()
+      .matches(/^[a-zA-Z\s]+$/, "Ingrese solo letras en el campo de nombres")
+      .required("Ingrese los nombres del usuario"),
+    apellidos: Yup.string()
+      .matches(/^[a-zA-Z\s]+$/, "Ingrese solo letras en el campo de apellidos")
+      .required("Ingrese los apellidos del usuario"),
+    nombre_usuario: Yup.string().required("Ingrese el nombre de usuario"),
+    clave: Yup.string().required("Ingrese la contraseña"),
+  });
+
+  const formOptions = { resolver: yupResolver(validationSchema) };
+  const { register, handleSubmit, formState, reset } = useForm(formOptions);
+  const { errors } = formState;
 
   useEffect(() => {
     const infoUsuario = async () => {
@@ -45,23 +56,12 @@ export default function ModificarUsuario() {
     };
 
     infoUsuario();
-  }, []);
-
-  // Validations
-  const validationSchema = Yup.object().shape({
-    nombres: Yup.string()
-      .matches(/^[a-zA-Z\s]+$/, "Ingrese solo letras en el campo de nombres")
-      .required("Ingrese los nombres del usuario"),
-    apellidos: Yup.string()
-      .matches(/^[a-zA-Z\s]+$/, "Ingrese solo letras en el campo de apellidos")
-      .required("Ingrese los apellidos del usuario"),
-    nombre_usuario: Yup.string().required("Ingrese el nombre de usuario"),
-    clave: Yup.string().required("Ingrese la contraseña"),
   });
 
-  const formOptions = { resolver: yupResolver(validationSchema) };
-  const { register, handleSubmit, formState, reset } = useForm(formOptions);
-  const { errors } = formState;
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
 
   const sendData = (formData) => {
     var datos = {
@@ -96,9 +96,8 @@ export default function ModificarUsuario() {
                       {...register("nombres")}
                       name="nombres"
                       id="nombres"
-                      className={`form-control ${
-                        errors.nombres ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.nombres ? "is-invalid" : ""
+                        }`}
                     />
                     <div className="invalid-feedback">
                       {errors.nombres?.message}
@@ -111,9 +110,8 @@ export default function ModificarUsuario() {
                       {...register("apellidos")}
                       name="apellidos"
                       id="apellidos"
-                      className={`form-control ${
-                        errors.apellidos ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.apellidos ? "is-invalid" : ""
+                        }`}
                     />
                     <div className="invalid-feedback">
                       {errors.apellidos?.message}
@@ -126,9 +124,8 @@ export default function ModificarUsuario() {
                       {...register("nombre_usuario")}
                       name="nombre_usuario"
                       id="nombre_usuario"
-                      className={`form-control ${
-                        errors.nombre_usuario ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.nombre_usuario ? "is-invalid" : ""
+                        }`}
                     />
                     <div className="invalid-feedback">
                       {errors.nombre_usuario?.message}
@@ -142,9 +139,8 @@ export default function ModificarUsuario() {
                       name="clave"
                       id="clave"
                       type="password"
-                      className={`form-control ${
-                        errors.clave ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.clave ? "is-invalid" : ""
+                        }`}
                     />
                     <div className="invalid-feedback">
                       {errors.clave?.message}
