@@ -16,11 +16,6 @@ export default function AgregarUsuario() {
   const [roles, setRoles] = useState([]);
   const [selectedRol, setSelectedRol] = useState("");
 
-  if (!estaSesion()) {
-    router.push("/");
-    return null;
-  }
-
   // Validaciones
   const validationSchema = Yup.object().shape({
     nombres: Yup.string()
@@ -52,7 +47,7 @@ export default function AgregarUsuario() {
     };
 
     obtenerRoles();
-  }, []);
+  });
 
   const sendData = async (data) => {
     console.log(data);
@@ -71,6 +66,16 @@ export default function AgregarUsuario() {
       router.push("/cuenta");
     });
   };
+
+  useEffect(() => {
+    if (!estaSesion()) {
+      router.push('/');
+    }
+  }, [router]);
+
+  if (!estaSesion()) {
+    return null;
+  }
 
   return (
     <div className="row">

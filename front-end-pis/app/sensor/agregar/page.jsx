@@ -14,11 +14,6 @@ export default function AgregarSensor() {
   const router = useRouter();
   const token = getToken();
 
-  if (!estaSesion()) {
-    router.push("/");
-    return null;
-  }
-
   // Validaciones
   const validationSchema = Yup.object().shape({
     alias: Yup.string()
@@ -57,6 +52,16 @@ export default function AgregarSensor() {
       router.push("/sensor");
     });
   };
+
+  useEffect(() => {
+    if (!estaSesion()) {
+      router.push('/');
+    }
+  }, [router]);
+
+  if (!estaSesion()) {
+    return null;
+  }
 
   return (
     <div className="row">

@@ -18,10 +18,27 @@ export default function AgregarSensor() {
   const [sensorData, setSensorData] = useState({});
   const [tipoMedicionSeleccionada, setTipoMedicionSeleccionada] = useState("");
 
-  if (!estaSesion()) {
-    router.push("/");
-    return null;
-  }
+  // Validaciones
+  const validationSchema = Yup.object().shape({
+    alias: Yup.string()
+      .required("Ingrese el alias del sensor")
+      .matches(
+        /^[a-zA-Z0-9\s]+$/,
+        "Ingrese solo letras, números y espacios en el campo de alias"
+      ),
+
+    ip: Yup.string()
+      .required("Ingrese la dirección IP del sensor")
+      .matches(
+        /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/,
+        "Ingrese una dirección IP válida de tipo IPv4"
+      ),
+    tipo_medicion: Yup.string().required("Seleccione el tipo de medición de sensor"),
+  });
+
+  const formOptions = { resolver: yupResolver(validationSchema) };
+  const { register, handleSubmit, formState, reset } = useForm(formOptions);
+  let { errors } = formState;
 
   useEffect(() => {
     const infoSensor = async () => {
@@ -38,10 +55,8 @@ export default function AgregarSensor() {
         console.error("Error al obtener sensor");
       }
     };
-
     infoSensor();
-
-  }, []);
+  });
 
   useEffect(() => {
     if (Object.keys(sensorData).length > 0 && tipoMedicionSeleccionada !== "") {
@@ -51,29 +66,12 @@ export default function AgregarSensor() {
         tipo_medicion: tipoMedicionSeleccionada,
       });
     }
-  }, [sensorData, tipoMedicionSeleccionada]);
+  }, [sensorData, tipoMedicionSeleccionada, reset]);
 
-  // Validaciones
-  const validationSchema = Yup.object().shape({
-    alias: Yup.string()
-      .required("Ingrese el alias del sensor")
-      .matches(
-        /^[a-zA-Z0-9\s]+$/,
-        "Ingrese solo letras, números y espacios en el campo de alias"
-      ),
-
-    ip: Yup.string()
-      .required("Ingrese la dirección IP del sensor")
-      .matches(
-        /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/,
-        "Ingrese una dirección IP válida de tipo IPv4"
-      ),
-      tipo_medicion: Yup.string().required("Seleccione el tipo de medición de sensor"),
-  });
-
-  const formOptions = { resolver: yupResolver(validationSchema) };
-  const { register, handleSubmit, formState, reset } = useForm(formOptions);
-  let { errors } = formState;
+  if (!estaSesion()) {
+    router.push("/");
+    return null;
+  }
 
   const sendData = async (data) => {
     console.log("data", data);
@@ -141,9 +139,8 @@ export default function AgregarSensor() {
                   id="tipo_medicion"
                   value={tipoMedicionSeleccionada}
                   onChange={(e) => setTipoMedicionSeleccionada(e.target.value)}
-                  className={`form-control ${
-                    errors.tipo_medicion ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.tipo_medicion ? "is-invalid" : ""
+                    }`}
                 >
                   <option value="" disabled>
                     Seleccione el tipo de sensor
